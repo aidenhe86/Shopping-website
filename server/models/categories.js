@@ -2,15 +2,16 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
+const { sqlForPartialUpdate } = require("../helpers/sql");
 
 /** Related functions for categories. */
 
 class Category {
   /** Create a new category and return category,
-   * Returns {category},
+   * Returns {category, imageUrl},
    * Throws BadRequestError if category already in database.
    */
-  static async create(category) {
+  static async create(category, imageUrl = "some default picture") {
     const duplicateCheck = await db.query(
       `SELECT category
              FROM categories
@@ -22,32 +23,33 @@ class Category {
       throw new BadRequestError(`Duplicate category: ${category}`);
 
     const result = await db.query(
-      `INSERT INTO categories (category) VALUES ($1)
-            RETURNING category,`,
-      [category]
+      `INSERT INTO categories (category,image_url) VALUES ($1,$2)
+            RETURNING category image_url AS imageUrl`,
+      [category, imageUrl]
     );
     return result.rows[0];
   }
 
   /** Find all categories
-   * Returns [{category},...]
+   * Returns [{category,imageUrl},...]
    */
   static async findAll() {
     const result = await db.query(
-      `SELECT category FROM categories ORDER BY category`
+      `SELECT category, image_url AS imageUrl 
+      FROM categories ORDER BY category`
     );
     return result.rows;
   }
 
   /** Given a category, return all items under that category
-   * Returns {category, items}
-   *    where items is [id,title,image_url,quantity, price]
+   * Returns {category,imageUrl, items}
+   *    where items is [{id,title,image_url,quantity, price},...]
    *
    * Throws NotFoundError if not found.
    */
   static async get(category) {
     const categoryRes = await db.query(
-      `SELECT category
+      `SELECT category, image_url AS imageUrl
         FROM categories
         WHERE category = $1`,
       [category]
@@ -57,29 +59,37 @@ class Category {
     if (!cat) throw new NotFoundError(`No category: ${category}`);
 
     const itemsRes = await db.query(
-      `SELECT i.* 
+      `SELECT i.id,
+              i.title,
+              i.image_url AS imageUrl, 
+              i.quantity, 
+              i.price 
         FROM 
-            items i
-            JOIN item_category ic ON ic.category_id = i.id
-            JOIN category c ON ic.category_id = c.id
-        ORDER BY i.title
-        `
+            item_category ic
+            JOIN items i ON ic.item_id = i.id
+            JOIN categories c ON ic.category_id = c.id
+        WHERE c.category = $1 
+        ORDER BY i.title`,
+      [category]
     );
     cat.items = itemsRes.rows;
     return cat;
   }
-  /** Update category name
-   * Returns {category}
+  /** Update category data
+   * Returns {category,imageUrl}
    * Throw NotFoundError if not found.
    */
-  static async update(category, newCategory) {
-    const result = await db.query(
-      `UPDATE categories
-            SET category = $1
-            WHERE category = $2
-        RETURNING category`,
-      [newCategory, category]
-    );
+  static async update(category, data) {
+    const { setCols, values } = sqlForPartialUpdate(data, {
+      imageUrl: "image_url",
+    });
+    const catVarIdx = "$" + (values.length + 1);
+
+    const querySql = `UPDATE categories
+                      SET ${setCols}
+                      WHERE category = ${catVarIdx}
+                      RETURNING category, image_url AS imageUrl`;
+    const result = await db.query(querySql, [...values, category]);
     const newCat = result.rows[0];
     if (!newCat) throw new NotFoundError(`No category: ${category}`);
 

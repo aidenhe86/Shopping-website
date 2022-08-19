@@ -12,19 +12,21 @@ CREATE TABLE users (
 
 CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
-    category VARCHAR(25) UNIQUE CHECK (category = lower(category))
+    category VARCHAR(25) UNIQUE CHECK (category = lower(category)),
+    image_url TEXT
 );
 
 CREATE TABLE items(
     id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
+    title TEXT UNIQUE NOT NULL,
     image_url TEXT,
     quantity INTEGER NOT NULL DEFAULT 100,
-    price DECIMAL (9,2) NOT NULL
+    price DECIMAL (9,2) NOT NULL,
+    description TEXT
 );
 
 CREATE TABLE item_category(
   category_id INTEGER REFERENCES categories ON DELETE CASCADE,
-  title_id INTEGER REFERENCES items ON DELETE CASCADE,
-  PRIMARY KEY(category_id, title_id)
+  item_id INTEGER REFERENCES items ON DELETE CASCADE,
+  PRIMARY KEY(category_id, item_id)
 );
