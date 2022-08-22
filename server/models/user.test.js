@@ -140,7 +140,6 @@ describe("get", function () {
       lastName: "U1L",
       email: "u1@email.com",
       isAdmin: false,
-      jobs: [1, 2],
     });
   });
 
@@ -229,39 +228,29 @@ describe("remove", function () {
   });
 });
 
-// Apply Jobs
+// Create new Customer ID
 
-describe("Apply job", function () {
+describe("Create new Customer ID", function () {
   test("works", async function () {
-    await User.applyJob("u1", 3);
+    await User.newCustomer("u2", "testCustomerID");
     const res = await db.query(
-      `SELECT * FROM applications WHERE username = 'u1' AND job_id = 3`
+      `SELECT * FROM users WHERE username = 'u2' AND stripe_id = 'testCustomerID'`
     );
     expect(res.rows.length).toEqual(1);
   });
 
-  test("fails:not exist job id", async function () {
-    try {
-      await User.applyJob("u1", 0);
-      fail();
-    } catch (err) {
-      expect(err instanceof NotFoundError).toBeTruthy();
-    }
-  });
-
   test("fails:not exist username", async function () {
     try {
-      await User.applyJob("nfsdfsdfs", 1);
+      await User.newCustomer("test", "testCustomerID");
       fail();
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
     }
   });
 
-  test("fail: duplicate application", async function () {
+  test("fails:customer id already created", async function () {
     try {
-      await User.applyJob("u1", 3);
-      await User.applyJob("u1", 3);
+      await User.newCustomer("u1", "customerID1");
       fail();
     } catch (err) {
       expect(err instanceof BadRequestError).toBeTruthy();

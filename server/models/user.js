@@ -25,13 +25,13 @@ class User {
     // try to find the user first
     const result = await db.query(
       `SELECT username,
-                  password,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
-           WHERE username = $1`,
+              password,
+              first_name AS "firstName",
+              last_name AS "lastName",
+              email,
+              is_admin AS "isAdmin"
+      FROM users
+      WHERE username = $1`,
       [username]
     );
 
@@ -116,7 +116,7 @@ class User {
 
   /** Given a username, return data about user.
    *
-   * Returns { username, first_name, last_name, is_admin, jobs }
+   * Returns { username, first_name, last_name, is_admin}
    *   where jobs is { id, title, company_handle, company_name, state }
    *
    * Throws NotFoundError if user not found.
@@ -137,16 +137,6 @@ class User {
     const user = userRes.rows[0];
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
-
-    const appRes = await db.query(
-      `
-      SELECT job_id AS "jobId" 
-      FROM applications
-      WHERE username = $1`,
-      [username]
-    );
-
-    user.jobs = appRes.rows.map((a) => a.jobId);
 
     return user;
   }
@@ -200,27 +190,38 @@ class User {
   /** create stripe customer id when customer first time purchase.
    *  Only when stripe customer id is empty.
    */
-  static async newCustomer(username, customer_id) {
-    // check if user have customer id
-    const duplicateCheck = await db.query(
-      `SELECT customer_id
+  static async newCustomer(username, stripe_id) {
+    // check if username exist
+    const duplicateCheck1 = await db.query(
+      `SELECT username
            FROM users
-           WHERE customer_id = $1`,
-      [customer_id]
+           WHERE username = $1`,
+      [username]
     );
 
-    if (duplicateCheck.rows[0]) {
+    if (!duplicateCheck1.rows[0]) {
+      throw new NotFoundError(`No user: ${username}`);
+    }
+    // check if user have customer id
+    const duplicateCheck2 = await db.query(
+      `SELECT stripe_id
+           FROM users
+           WHERE stripe_id = $1`,
+      [stripe_id]
+    );
+
+    if (duplicateCheck2.rows[0]) {
       throw new BadRequestError(`Customer ID already created!`);
     }
 
     const result = await db.query(
       `UPDATE users
-        SET customer_id = $1
+        SET stripe_id = $1
         WHERE username = $2
-        RETURNING customer_id AS "customerId"`,
-      [customer_id, username]
+        RETURNING stripe_id AS "stripeId"`,
+      [stripe_id, username]
     );
-    const customerID = result.row[0];
+    const customerID = result.rows[0];
     return customerID;
   }
 

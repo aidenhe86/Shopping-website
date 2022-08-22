@@ -62,11 +62,12 @@ class Item {
     return { categories, ...newItem };
   }
 
-  /** Given a title, return that item data
-   * Returns {title,image_url,quantity, price, description}
+  /** Given a item id, return that item data
+   * Returns {categories, title,image_url,quantity, price, description}
+   * where categories = [category,...]
    * Throws NotFoundError if not found.
    */
-  static async get(title) {
+  static async get(id) {
     const itemRes = await db.query(
       `SELECT  
             title, 
@@ -75,11 +76,11 @@ class Item {
             price,
             description
         FROM items
-        WHERE title = $1`,
-      [title]
+        WHERE id = $1`,
+      [id]
     );
     const item = itemRes.rows[0];
-    if (!item) throw new NotFoundError(`No Item:${title} found!`);
+    if (!item) throw new NotFoundError(`No Item ID:${id} found!`);
 
     const catRes = await db.query(
       `
@@ -101,22 +102,75 @@ class Item {
   /** Update item data
    * Returns {[category,...],id,title, image_url,quantity,price,description}
    */
-  static async update(title, data, categories) {
+  static async update(id, data, categories) {
     // update item info
     const { setCols, values } = sqlForPartialUpdate(data, {
       imageUrl: "image_url",
     });
-    const titleVarIdx = "$" + (values.length + 1);
+    const itemVarIdx = "$" + (values.length + 1);
 
     const querySql = `UPDATE items
                       SET ${setCols}
-                      WHERE title = ${titleVarIdx}
-                      RETURNING category, image_url AS imageUrl`;
-    const result = await db.query(querySql, [...values, title]);
+                      WHERE id = ${itemVarIdx}
+                      RETURNING id,
+                                title, 
+                                image_url AS imageUrl,
+                                quantity,
+                                price,
+                                description`;
+    const result = await db.query(querySql, [...values, id]);
     const newItem = result.rows[0];
-    if (!newItem) throw new NotFoundError(`No Item: ${title}`);
+    if (!newItem) throw new NotFoundError(`No Item ID: ${id}`);
 
-    return newItem;
+    // precheck for categories if not exist
+    const catID = [];
+
+    for (let category of categories) {
+      let preCheckCat = await db.query(
+        `SELECT id, category FROM categories WHERE category = $1`,
+        [category]
+      );
+      let preCheck1 = preCheckCat.rows[0];
+      if (!preCheck1) throw new NotFoundError(`No category:${category} Found!`);
+      // save category id if found
+      catID.push(preCheck1.id);
+    }
+
+    // delete all previous m2m relationship
+    await db.query(
+      `DELETE
+           FROM item_category
+           WHERE item_id = $1`,
+      [id]
+    );
+
+    // insert all new m2m relationship
+    for (let cID of catID) {
+      await db.query(
+        `INSERT INTO item_category
+            (category_id,item_id)
+            VALUES($1,$2)`,
+        [cID, id]
+      );
+    }
+
+    return { categories, ...newItem };
+  }
+  /** Delete given item from database; returns undefined.
+   *
+   * Throws NotFoundError if item not found.
+   **/
+
+  static async remove(id) {
+    const result = await db.query(
+      `DELETE
+      FROM items
+      WHERE id = $1
+      RETURNING id`,
+      [id]
+    );
+    const item = result.rows[0];
+    if (!item) throw new NotFoundError(`No Item ID:${id}`);
   }
 }
 
