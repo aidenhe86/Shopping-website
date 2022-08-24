@@ -87,21 +87,21 @@ describe("create items", function () {
     }
   });
 
-  test("not found with not exist category", async () => {
-    try {
-      await Item.create({
-        categories: ["nope"],
-        title: "new",
-        imageUrl: "http://new.img",
-        quantity: 1000,
-        price: "4.56",
-        description: "New Item",
-      });
-      fail();
-    } catch (err) {
-      expect(err instanceof NotFoundError).toBeTruthy();
-    }
-  });
+  // test("not found with not exist category", async () => {
+  //   try {
+  //     await Item.create({
+  //       categories: ["nope"],
+  //       title: "new",
+  //       imageUrl: "http://new.img",
+  //       quantity: 1000,
+  //       price: "4.56",
+  //       description: "New Item",
+  //     });
+  //     fail();
+  //   } catch (err) {
+  //     expect(err instanceof NotFoundError).toBeTruthy();
+  //   }
+  // });
 });
 
 describe("get", function () {
@@ -128,54 +128,74 @@ describe("get", function () {
   });
 });
 
-// describe("update", function () {
-//   const updateData = {
-//     title: "test",
-//     quantity: 500,
-//     price: "3.14",
-//   };
+describe("update", function () {
+  const updateData = {
+    title: "test",
+    quantity: 500,
+    price: "3.14",
+  };
 
-//   test("works", async function () {
-//     let item = await Item.update(1, updateData, ["categories"]);
-//     expect(job).toEqual({
-//       id: 1,
-//       companyHandle: "c1",
-//       ...updateData,
-//     });
-//   });
+  test("works", async function () {
+    let item = await Item.update(1, updateData, ["category1", "category3"]);
+    expect(item).toEqual({
+      id: 1,
+      ...updateData,
+      imageUrl: "http://i1.img",
+      description: "test item1",
+      categories: [{ category: "category1" }, { category: "category3" }],
+    });
+  });
 
-//   test("fail: job not found", async function () {
-//     try {
-//       await Job.update(0, updateData);
-//       fail();
-//     } catch (e) {
-//       expect(e instanceof NotFoundError).toBeTruthy();
-//     }
-//   });
+  test("fail: item not found", async function () {
+    try {
+      await Item.update(0, updateData, ["category1", "category3"]);
+      fail();
+    } catch (e) {
+      expect(e instanceof NotFoundError).toBeTruthy();
+    }
+  });
 
-//   test("fail:bad request with no data", async function () {
-//     try {
-//       await Job.update(1, {});
-//       fail();
-//     } catch (e) {
-//       expect(e instanceof BadRequestError).toBeTruthy();
-//     }
-//   });
-// });
+  test("fail:bad request with no data", async function () {
+    try {
+      await Item.update(1, {}, ["category1", "category3"]);
+      fail();
+    } catch (e) {
+      expect(e instanceof BadRequestError).toBeTruthy();
+    }
+  });
 
-// describe("delete",function(){
-//     test("works",async function(){
-//         await Job.remove(1);
-//         const res = await db.query("SELECT id FROM jobs WHERE id = 1");
-//         expect(res.rows.length).toEqual(0);
-//     })
+  test("fail:bad request with no category", async function () {
+    try {
+      await Item.update(1, updateData, []);
+      fail();
+    } catch (e) {
+      expect(e instanceof BadRequestError).toBeTruthy();
+    }
+  });
 
-//     test("fail:delete not exist job",async function(){
-//         try{
-//             await Job.remove(0);
-//             fail();
-//         }catch(err){
-//             expect(err instanceof NotFoundError).toBeTruthy();
-//         }
-//     })
-// });
+  // test("fail if not found category", async function () {
+  //   try {
+  //     await Item.update(1, updateData, ["category1000"]);
+  //     fail();
+  //   } catch (e) {
+  //     expect(e instanceof BadRequestError).toBeTruthy();
+  //   }
+  // });
+});
+
+describe("delete", function () {
+  test("works", async function () {
+    await Item.remove(1);
+    const res = await db.query("SELECT * FROM items WHERE id = 1");
+    expect(res.rows.length).toEqual(0);
+  });
+
+  test("fail:delete not exist item", async function () {
+    try {
+      await Item.remove(0);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});

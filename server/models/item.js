@@ -174,6 +174,24 @@ class Item {
    * where categories = [{category},...]
    */
   static async update(id, data, categories) {
+    // categories cannot be empty
+    if (!categories.length)
+      throw new BadRequestError(`Item must contain at least one category!`);
+
+    // precheck for categories if not exist
+    const catID = [];
+
+    const catPromise = async (c) => {
+      let preCheckCat = await db.query(
+        `SELECT id, category FROM categories WHERE category = $1`,
+        [c]
+      );
+      let preCheck1 = preCheckCat.rows[0];
+      if (!preCheck1) return new NotFoundError(`No category:${c} Found!`);
+      catID.push(preCheck1.id);
+    };
+    Promise.all(categories.map((c) => catPromise(c)));
+
     // update item info
     const { setCols, values } = sqlForPartialUpdate(data, {
       imageUrl: "image_url",
@@ -193,20 +211,6 @@ class Item {
     const newItem = result.rows[0];
     if (!newItem) throw new NotFoundError(`No Item ID: ${id}`);
 
-    // precheck for categories if not exist
-    const catID = [];
-
-    const catPromise = async (c) => {
-      let preCheckCat = await db.query(
-        `SELECT id, category FROM categories WHERE category = $1`,
-        [c]
-      );
-      let preCheck1 = preCheckCat.rows[0];
-      if (!preCheck1) throw new NotFoundError(`No category:${c} Found!`);
-      catID.push(preCheck1.id);
-    };
-    Promise.all(categories.map((c) => catPromise(c)));
-
     // delete all previous m2m relationship
     await db.query(
       `DELETE
@@ -217,7 +221,7 @@ class Item {
 
     // insert all new m2m relationship
     const m2mPromise = async (cID) => {
-      let insert = await db.query(
+      await db.query(
         `INSERT INTO item_category
             (category_id,item_id)
             VALUES($1,$2)
@@ -225,8 +229,6 @@ class Item {
                       item_id AS "itemId"`,
         [cID, id]
       );
-      if (!insert.rows[0])
-        throw new BadRequestError(`Fail to create many to many relationshop!`);
     };
     Promise.all(catID.map((cID) => m2mPromise(cID)));
 
