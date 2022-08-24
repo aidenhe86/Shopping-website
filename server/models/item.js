@@ -17,19 +17,48 @@ class Item {
     price,
     description,
   }) {
+    // categories cannot be empty
+    if (!categories.length)
+      throw new BadRequestError(`Item must contain at least one category!`);
+
     const catID = [];
 
     // precheck for categories if not exist
-    for (let category of categories) {
-      let preCheckCat = await db.query(
-        `SELECT id, category FROM categories WHERE category = $1`,
-        [category]
-      );
-      let preCheck1 = preCheckCat.rows[0];
-      if (!preCheck1) throw new NotFoundError(`No category:${category} Found!`);
-      // save category id if found
-      catID.push(preCheck1.id);
-    }
+
+    // run one at a time
+    // for (let category of categories) {
+    //   let preCheckCat = await db.query(
+    //     `SELECT id, category FROM categories WHERE category = $1`,
+    //     [category]
+    //   );
+    //   let preCheck1 = preCheckCat.rows[0];
+    //   if (!preCheck1) throw new NotFoundError(`No category:${category} Found!`);
+    //   // save category id if found
+    //   catID.push(preCheck1.id);
+    // }
+
+    // run all query together
+    // const catPromise = async (c) => {
+    //   let preCheckCat = await db.query(
+    //     `SELECT id, category FROM categories WHERE category = $1`,
+    //     [c]
+    //   );
+    //   let preCheck1 = preCheckCat.rows[0];
+    //   if (!preCheck1) throw new NotFoundError(`No category:${c} Found!`);
+    //   catID.push(preCheck1.id);
+    // };
+
+    Promise.all(
+      categories.map(async (c) => {
+        let preCheckCat = await db.query(
+          `SELECT id, category FROM categories WHERE category = $1`,
+          [c]
+        );
+        let preCheck1 = preCheckCat.rows[0];
+        if (!preCheck1) return new NotFoundError(`No category:${c} Found!`);
+        catID.push(preCheck1.id);
+      })
+    );
 
     // precheck for items if created
     const preCheckItem = await db.query(
@@ -42,36 +71,74 @@ class Item {
     // create items
     const result = await db.query(
       `INSERT INTO items
-        (title, image_url, quantity,price, descriptipn) 
+        (title, image_url, quantity,price, description) 
         VALUES($1,$2,$3,$4,$5) 
-        RETURNING id,title,image_url,quantity,price,description`,
+        RETURNING id,
+                  title,
+                  image_url AS "imageUrl",
+                  quantity,
+                  price,
+                  description`,
       [title, imageUrl, quantity, price, description]
     );
     const newItem = result.rows[0];
     const itemID = newItem.id;
 
     // insert into many to many relationship table
-    for (let cID of catID) {
-      await db.query(
+
+    // for (let cID of catID) {
+    //   let insert = await db.query(
+    //     `INSERT INTO item_category
+    //         (category_id,item_id)
+    //         VALUES($1,$2)`,
+    //     [cID, itemID]
+    //   );
+    //   if (!insert.rows)
+    //     throw new BadRequestError(`Fail to create many to many relationshop!`);
+    // }
+
+    const m2mPromise = async (cID) => {
+      let insert = await db.query(
         `INSERT INTO item_category
             (category_id,item_id)
-            VALUES($1,$2)`,
+            VALUES($1,$2)
+            RETURNING category_id AS "categoryId", 
+                      item_id AS "itemId"`,
         [cID, itemID]
       );
-    }
-    return { categories, ...newItem };
+      if (!insert.rows[0])
+        throw new BadRequestError(`Fail to create many to many relationshop!`);
+    };
+    Promise.all(catID.map((cID) => m2mPromise(cID)));
+
+    const catRes = await db.query(
+      `
+        SELECT
+            c.category
+        FROM 
+            item_category ic
+            JOIN items i ON ic.item_id = i.id
+            JOIN categories c ON ic.category_id = c.id
+        WHERE i.id = $1
+        ORDER BY c.category`,
+      [itemID]
+    );
+    newItem.categories = catRes.rows;
+
+    return newItem;
   }
 
   /** Given a item id, return that item data
    * Returns {categories, title,image_url,quantity, price, description}
-   * where categories = [category,...]
+   * where categories = [{category},...]
    * Throws NotFoundError if not found.
    */
   static async get(id) {
     const itemRes = await db.query(
-      `SELECT  
+      `SELECT
+            id,  
             title, 
-            image_url AS imageUrl, 
+            image_url AS "imageUrl", 
             quantity,
             price,
             description
@@ -90,9 +157,9 @@ class Item {
             item_category ic
             JOIN items i ON ic.item_id = i.id
             JOIN categories c ON ic.category_id = c.id
-        WHERE i.title = $1
+        WHERE i.id = $1
         ORDER BY c.category`,
-      [title]
+      [id]
     );
 
     item.categories = catRes.rows;
@@ -100,7 +167,11 @@ class Item {
   }
 
   /** Update item data
-   * Returns {[category,...],id,title, image_url,quantity,price,description}
+   * accept {id,[category,...],data}
+   * where data is the item data will be update
+   *
+   * Returns {categories,id,title, image_url,quantity,price,description}
+   * where categories = [{category},...]
    */
   static async update(id, data, categories) {
     // update item info
@@ -114,7 +185,7 @@ class Item {
                       WHERE id = ${itemVarIdx}
                       RETURNING id,
                                 title, 
-                                image_url AS imageUrl,
+                                image_url AS "imageUrl",
                                 quantity,
                                 price,
                                 description`;
@@ -125,16 +196,16 @@ class Item {
     // precheck for categories if not exist
     const catID = [];
 
-    for (let category of categories) {
+    const catPromise = async (c) => {
       let preCheckCat = await db.query(
         `SELECT id, category FROM categories WHERE category = $1`,
-        [category]
+        [c]
       );
       let preCheck1 = preCheckCat.rows[0];
-      if (!preCheck1) throw new NotFoundError(`No category:${category} Found!`);
-      // save category id if found
+      if (!preCheck1) throw new NotFoundError(`No category:${c} Found!`);
       catID.push(preCheck1.id);
-    }
+    };
+    Promise.all(categories.map((c) => catPromise(c)));
 
     // delete all previous m2m relationship
     await db.query(
@@ -145,16 +216,35 @@ class Item {
     );
 
     // insert all new m2m relationship
-    for (let cID of catID) {
-      await db.query(
+    const m2mPromise = async (cID) => {
+      let insert = await db.query(
         `INSERT INTO item_category
             (category_id,item_id)
-            VALUES($1,$2)`,
+            VALUES($1,$2)
+            RETURNING category_id AS "categoryId", 
+                      item_id AS "itemId"`,
         [cID, id]
       );
-    }
+      if (!insert.rows[0])
+        throw new BadRequestError(`Fail to create many to many relationshop!`);
+    };
+    Promise.all(catID.map((cID) => m2mPromise(cID)));
 
-    return { categories, ...newItem };
+    const catRes = await db.query(
+      `
+        SELECT
+            c.category
+        FROM 
+            item_category ic
+            JOIN items i ON ic.item_id = i.id
+            JOIN categories c ON ic.category_id = c.id
+        WHERE i.id = $1
+        ORDER BY c.category`,
+      [id]
+    );
+    newItem.categories = catRes.rows;
+
+    return newItem;
   }
   /** Delete given item from database; returns undefined.
    *

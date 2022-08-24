@@ -11,7 +11,7 @@ class Category {
    * Returns {category, imageUrl},
    * Throws BadRequestError if category already in database.
    */
-  static async create(category, imageUrl = "some default picture") {
+  static async create({ category, imageUrl = "some default picture" }) {
     const duplicateCheck = await db.query(
       `SELECT category
              FROM categories
@@ -24,7 +24,7 @@ class Category {
 
     const result = await db.query(
       `INSERT INTO categories (category,image_url) VALUES ($1,$2)
-            RETURNING category image_url AS imageUrl`,
+            RETURNING category, image_url AS "imageUrl"`,
       [category, imageUrl]
     );
     return result.rows[0];
@@ -35,7 +35,7 @@ class Category {
    */
   static async findAll() {
     const result = await db.query(
-      `SELECT category, image_url AS imageUrl 
+      `SELECT category, image_url AS "imageUrl" 
       FROM categories ORDER BY category`
     );
     return result.rows;
@@ -49,7 +49,7 @@ class Category {
    */
   static async get(category) {
     const categoryRes = await db.query(
-      `SELECT category, image_url AS imageUrl
+      `SELECT category, image_url AS "imageUrl"
         FROM categories
         WHERE category = $1`,
       [category]
@@ -61,9 +61,10 @@ class Category {
     const itemsRes = await db.query(
       `SELECT i.id,
               i.title,
-              i.image_url AS imageUrl, 
+              i.image_url AS "imageUrl", 
               i.quantity, 
-              i.price 
+              i.price,
+              i.description
         FROM 
             item_category ic
             JOIN items i ON ic.item_id = i.id
@@ -88,7 +89,7 @@ class Category {
     const querySql = `UPDATE categories
                       SET ${setCols}
                       WHERE category = ${catVarIdx}
-                      RETURNING category, image_url AS imageUrl`;
+                      RETURNING category, image_url AS "imageUrl"`;
     const result = await db.query(querySql, [...values, category]);
     const newCat = result.rows[0];
     if (!newCat) throw new NotFoundError(`No category: ${category}`);

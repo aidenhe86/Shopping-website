@@ -1,6 +1,6 @@
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
-  username VARCHAR(25) UNIQUE,
+  username VARCHAR(25) UNIQUE NOT NULL,
   password TEXT NOT NULL,
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE users (
 
 CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
-    category VARCHAR(25) UNIQUE CHECK (category = lower(category)),
+    category TEXT UNIQUE NOT NULL,
     image_url TEXT
 );
 

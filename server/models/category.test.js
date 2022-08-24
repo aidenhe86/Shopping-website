@@ -19,7 +19,6 @@ afterAll(commonAfterAll);
 
 describe("create", function () {
   const newCategory = {
-    id: 1000,
     category: "testCategory",
     imageUrl: "http://new.img",
   };
@@ -29,286 +28,156 @@ describe("create", function () {
     expect(category).toEqual(newCategory);
 
     const result = await db.query(
-      `SELECT handle, name, description, num_employees, logo_url
-           FROM companies
-           WHERE handle = 'new'`
+      `SELECT id, category, image_url AS "imageUrl"
+           FROM categories
+           WHERE category = 'testCategory'`
     );
     expect(result.rows).toEqual([
       {
-        handle: "new",
-        name: "New",
-        description: "New Description",
-        num_employees: 1,
-        logo_url: "http://new.img",
+        id: expect.any(Number),
+        category: "testCategory",
+        imageUrl: "http://new.img",
       },
     ]);
   });
 
-  // test("bad request with dupe", async function () {
-  //   try {
-  //     await Company.create(newCompany);
-  //     await Company.create(newCompany);
-  //     fail();
-  //   } catch (err) {
-  //     expect(err instanceof BadRequestError).toBeTruthy();
-  //   }
-  // });
+  test("bad request with dupe", async function () {
+    try {
+      await Category.create(newCategory);
+      await Category.create(newCategory);
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
 });
 
-// /************************************** findAll */
+/************************************** findAll */
 
-// describe("findAll", function () {
-//   test("works: no filter", async function () {
-//     let companies = await Company.findAll();
-//     expect(companies).toEqual([
-//       {
-//         handle: "c1",
-//         name: "C1",
-//         description: "Desc1",
-//         numEmployees: 1,
-//         logoUrl: "http://c1.img",
-//       },
-//       {
-//         handle: "c2",
-//         name: "C2",
-//         description: "Desc2",
-//         numEmployees: 2,
-//         logoUrl: "http://c2.img",
-//       },
-//       {
-//         handle: "c3",
-//         name: "C3",
-//         description: "Desc3",
-//         numEmployees: 3,
-//         logoUrl: "http://c3.img",
-//       },
-//     ]);
-//   });
+describe("findAll", function () {
+  test("works", async function () {
+    let categories = await Category.findAll();
+    expect(categories).toEqual([
+      {
+        category: "category1",
+        imageUrl: "http://c1.img",
+      },
+      {
+        category: "category2",
+        imageUrl: "http://c2.img",
+      },
+      {
+        category: "category3",
+        imageUrl: "http://c3.img",
+      },
+    ]);
+  });
+});
 
-//   test("works:filter by min", async function () {
-//     let filter = { minEmployees: 2 };
-//     let companies = await Company.findAll(filter);
-//     expect(companies).toEqual([
-//       {
-//         handle: "c2",
-//         name: "C2",
-//         description: "Desc2",
-//         numEmployees: 2,
-//         logoUrl: "http://c2.img",
-//       },
-//       {
-//         handle: "c3",
-//         name: "C3",
-//         description: "Desc3",
-//         numEmployees: 3,
-//         logoUrl: "http://c3.img",
-//       },
-//     ]);
-//   });
+/************************************** get */
 
-//   test("works:filter by max", async function () {
-//     let filter = { maxEmployees: 2 };
-//     let companies = await Company.findAll(filter);
-//     expect(companies).toEqual([
-//       {
-//         handle: "c1",
-//         name: "C1",
-//         description: "Desc1",
-//         numEmployees: 1,
-//         logoUrl: "http://c1.img",
-//       },
-//       {
-//         handle: "c2",
-//         name: "C2",
-//         description: "Desc2",
-//         numEmployees: 2,
-//         logoUrl: "http://c2.img",
-//       },
-//     ]);
-//   });
+describe("get", function () {
+  test("works", async function () {
+    let category = await Category.get("category2");
+    expect(category).toEqual({
+      category: "category2",
+      imageUrl: "http://c2.img",
+      items: [
+        {
+          id: 1,
+          title: "item1",
+          imageUrl: "http://i1.img",
+          quantity: 100,
+          price: "3.00",
+          description: "test item1",
+        },
+        {
+          id: 2,
+          title: "item2",
+          imageUrl: "http://i2.img",
+          quantity: 200,
+          price: "7.00",
+          description: "test item2",
+        },
+      ],
+    });
+  });
 
-//   test("works:filter by min-max", async function () {
-//     let filter = { minEmployees: 2, maxEmployees: 2 };
-//     let companies = await Company.findAll(filter);
-//     expect(companies).toEqual([
-//       {
-//         handle: "c2",
-//         name: "C2",
-//         description: "Desc2",
-//         numEmployees: 2,
-//         logoUrl: "http://c2.img",
-//       },
-//     ]);
-//   });
+  test("not found if no such category", async function () {
+    try {
+      await Category.get("nope");
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
 
-//   test("works:filter by name", async function () {
-//     let filter = { name: "c2" };
-//     let companies = await Company.findAll(filter);
-//     expect(companies).toEqual([
-//       {
-//         handle: "c2",
-//         name: "C2",
-//         description: "Desc2",
-//         numEmployees: 2,
-//         logoUrl: "http://c2.img",
-//       },
-//     ]);
-//   });
+/************************************** update */
 
-//   test("works:find not exist company name", async function () {
-//     let filter = { name: "notexist" };
-//     let companies = await Company.findAll(filter);
-//     expect(companies).toEqual([]);
-//   });
+describe("update", function () {
+  const updateData = {
+    category: "New",
+    imageUrl: "http://new.img",
+  };
 
-//   test("fail:invalid min > max", async function () {
-//     try {
-//       let filter = { minEmployees: 3, maxEmployees: 2 };
-//       await Company.findAll(filter);
-//       fail();
-//     } catch (err) {
-//       expect(err instanceof BadRequestError).toBeTruthy();
-//     }
-//   });
-// });
+  test("works", async function () {
+    let category = await Category.update("category1", updateData);
+    expect(category).toEqual({
+      ...updateData,
+    });
 
-// /************************************** get */
+    const result = await db.query(
+      `SELECT id,
+              category,
+              image_url as "imageUrl" 
+      FROM categories 
+              WHERE category = 'New'`
+    );
+    expect(result.rows).toEqual([
+      {
+        id: 1,
+        ...updateData,
+      },
+    ]);
+  });
 
-// describe("get", function () {
-//   test("works", async function () {
-//     let company = await Company.get("c1");
-//     expect(company).toEqual({
-//       name: "C1",
-//       description: "Desc1",
-//       numEmployees: 1,
-//       logoUrl: "http://c1.img",
-//       handle: "c1",
-//       jobs: [
-//         {
-//           id: 1,
-//           title: "j1",
-//           salary: 12345,
-//           equity: "0",
-//         },
-//         {
-//           id: 2,
-//           title: "j2",
-//           salary: 123456,
-//           equity: "0.5",
-//         },
-//       ],
-//     });
-//   });
+  test("not found if no such category", async function () {
+    try {
+      await Category.update("nope", updateData);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
 
-//   test("not found if no such company", async function () {
-//     try {
-//       await Company.get("nope");
-//       fail();
-//     } catch (err) {
-//       expect(err instanceof NotFoundError).toBeTruthy();
-//     }
-//   });
-// });
+  test("bad request with no data", async function () {
+    try {
+      await Category.update("category1", {});
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+});
 
-// /************************************** update */
+/************************************** remove */
 
-// describe("update", function () {
-//   const updateData = {
-//     name: "New",
-//     description: "New Description",
-//     numEmployees: 10,
-//     logoUrl: "http://new.img",
-//   };
+describe("remove", function () {
+  test("works", async function () {
+    await Category.remove("category1");
+    const res = await db.query(
+      "SELECT * FROM categories WHERE category = 'category1'"
+    );
+    expect(res.rows.length).toEqual(0);
+  });
 
-//   test("works", async function () {
-//     let company = await Company.update("c1", updateData);
-//     expect(company).toEqual({
-//       handle: "c1",
-//       ...updateData,
-//     });
-
-//     const result = await db.query(
-//       `SELECT handle, name, description, num_employees, logo_url
-//            FROM companies
-//            WHERE handle = 'c1'`
-//     );
-//     expect(result.rows).toEqual([
-//       {
-//         handle: "c1",
-//         name: "New",
-//         description: "New Description",
-//         num_employees: 10,
-//         logo_url: "http://new.img",
-//       },
-//     ]);
-//   });
-
-//   test("works: null fields", async function () {
-//     const updateDataSetNulls = {
-//       name: "New",
-//       description: "New Description",
-//       numEmployees: null,
-//       logoUrl: null,
-//     };
-
-//     let company = await Company.update("c1", updateDataSetNulls);
-//     expect(company).toEqual({
-//       handle: "c1",
-//       ...updateDataSetNulls,
-//     });
-
-//     const result = await db.query(
-//       `SELECT handle, name, description, num_employees, logo_url
-//            FROM companies
-//            WHERE handle = 'c1'`
-//     );
-//     expect(result.rows).toEqual([
-//       {
-//         handle: "c1",
-//         name: "New",
-//         description: "New Description",
-//         num_employees: null,
-//         logo_url: null,
-//       },
-//     ]);
-//   });
-
-//   test("not found if no such company", async function () {
-//     try {
-//       await Company.update("nope", updateData);
-//       fail();
-//     } catch (err) {
-//       expect(err instanceof NotFoundError).toBeTruthy();
-//     }
-//   });
-
-//   test("bad request with no data", async function () {
-//     try {
-//       await Company.update("c1", {});
-//       fail();
-//     } catch (err) {
-//       expect(err instanceof BadRequestError).toBeTruthy();
-//     }
-//   });
-// });
-
-// /************************************** remove */
-
-// describe("remove", function () {
-//   test("works", async function () {
-//     await Company.remove("c1");
-//     const res = await db.query(
-//       "SELECT handle FROM companies WHERE handle='c1'"
-//     );
-//     expect(res.rows.length).toEqual(0);
-//   });
-
-//   test("not found if no such company", async function () {
-//     try {
-//       await Company.remove("nope");
-//       fail();
-//     } catch (err) {
-//       expect(err instanceof NotFoundError).toBeTruthy();
-//     }
-//   });
-// });
+  test("not found if no such category", async function () {
+    try {
+      await Category.remove("nope");
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
