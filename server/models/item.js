@@ -48,14 +48,14 @@ class Item {
     //   catID.push(preCheck1.id);
     // };
 
-    Promise.all(
+    await Promise.all(
       categories.map(async (c) => {
         let preCheckCat = await db.query(
           `SELECT id, category FROM categories WHERE category = $1`,
           [c]
         );
         let preCheck1 = preCheckCat.rows[0];
-        if (!preCheck1) return new NotFoundError(`No category:${c} Found!`);
+        if (!preCheck1) throw new NotFoundError(`No category:${c} Found!`);
         catID.push(preCheck1.id);
       })
     );
@@ -98,18 +98,14 @@ class Item {
     // }
 
     const m2mPromise = async (cID) => {
-      let insert = await db.query(
+      await db.query(
         `INSERT INTO item_category
             (category_id,item_id)
-            VALUES($1,$2)
-            RETURNING category_id AS "categoryId", 
-                      item_id AS "itemId"`,
+            VALUES($1,$2)`,
         [cID, itemID]
       );
-      if (!insert.rows[0])
-        throw new BadRequestError(`Fail to create many to many relationshop!`);
     };
-    Promise.all(catID.map((cID) => m2mPromise(cID)));
+    await Promise.all(catID.map((cID) => m2mPromise(cID)));
 
     const catRes = await db.query(
       `
@@ -178,7 +174,7 @@ class Item {
     if (!categories.length)
       throw new BadRequestError(`Item must contain at least one category!`);
 
-    // precheck for categories if not exist
+    // precheck for categories
     const catID = [];
 
     const catPromise = async (c) => {
@@ -187,10 +183,10 @@ class Item {
         [c]
       );
       let preCheck1 = preCheckCat.rows[0];
-      if (!preCheck1) return new NotFoundError(`No category:${c} Found!`);
+      if (!preCheck1) throw new NotFoundError(`No category:${c} Found!`);
       catID.push(preCheck1.id);
     };
-    Promise.all(categories.map((c) => catPromise(c)));
+    await Promise.all(categories.map((c) => catPromise(c)));
 
     // update item info
     const { setCols, values } = sqlForPartialUpdate(data, {
@@ -230,7 +226,7 @@ class Item {
         [cID, id]
       );
     };
-    Promise.all(catID.map((cID) => m2mPromise(cID)));
+    await Promise.all(catID.map((cID) => m2mPromise(cID)));
 
     const catRes = await db.query(
       `

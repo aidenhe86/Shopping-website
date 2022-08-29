@@ -87,21 +87,21 @@ describe("create items", function () {
     }
   });
 
-  // test("not found with not exist category", async () => {
-  //   try {
-  //     await Item.create({
-  //       categories: ["nope"],
-  //       title: "new",
-  //       imageUrl: "http://new.img",
-  //       quantity: 1000,
-  //       price: "4.56",
-  //       description: "New Item",
-  //     });
-  //     fail();
-  //   } catch (err) {
-  //     expect(err instanceof NotFoundError).toBeTruthy();
-  //   }
-  // });
+  test("not found with not exist category", async () => {
+    try {
+      await Item.create({
+        categories: ["nope"],
+        title: "new",
+        imageUrl: "http://new.img",
+        quantity: 1000,
+        price: "4.56",
+        description: "New Item",
+      });
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
 });
 
 describe("get", function () {
@@ -173,14 +173,14 @@ describe("update", function () {
     }
   });
 
-  // test("fail if not found category", async function () {
-  //   try {
-  //     await Item.update(1, updateData, ["category1000"]);
-  //     fail();
-  //   } catch (e) {
-  //     expect(e instanceof BadRequestError).toBeTruthy();
-  //   }
-  // });
+  test("fail if not found category", async function () {
+    try {
+      await Item.update(1, updateData, ["category1000"]);
+      fail();
+    } catch (e) {
+      expect(e instanceof NotFoundError).toBeTruthy();
+    }
+  });
 });
 
 describe("delete", function () {
