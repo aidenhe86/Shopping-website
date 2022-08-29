@@ -2,6 +2,14 @@
 
 const path = require("path");
 const express = require("express");
+const cors = require("cors");
+const { NotFoundError } = require("./expressError");
+
+const { authenticateJWT } = require("./middleware/auth");
+const authRoutes = require("./routes/auth");
+const usersRoutes = require("./routes/users");
+const categoriesRoutes = require("./routes/categories");
+// const itemsRoutes = require("./routes/items");
 
 const app = express();
 
@@ -12,6 +20,17 @@ app.use(express.static(path.join(__dirname, "..", "client", "build")));
 app.get("/api/ping", function (req, res) {
   res.send("Ok");
 });
+
+// allows to indicate any origins (domain, scheme, or port) other than its own from which a browser should permit loading resources
+app.use(cors());
+// parses incoming JSON requests and puts the parsed data in req
+app.use(express.json());
+app.use(authenticateJWT);
+
+app.use("/auth", authRoutes);
+app.use("/users", usersRoutes);
+app.use("/categories", categoriesRoutes);
+// app.use("/items", itemsRoutes);
 
 if (process.env.NODE_ENV !== "dev") {
   // Catch-All for any request that doesn't match a route

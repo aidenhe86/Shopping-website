@@ -1,0 +1,15 @@
+{
+  "properties": {
+    "category": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 30
+    },
+    "imageUrl": {
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["category"]
+}

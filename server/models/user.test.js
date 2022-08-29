@@ -228,11 +228,11 @@ describe("remove", function () {
   });
 });
 
-// Create new Customer ID
+/************************************** create customer id */
 
 describe("Create new Customer ID", function () {
   test("works", async function () {
-    await User.newCustomer("u2", "testCustomerID");
+    await User.newCustomer("u2", { stripe_id: "testCustomerID" });
     const res = await db.query(
       `SELECT * FROM users WHERE username = 'u2' AND stripe_id = 'testCustomerID'`
     );
@@ -250,7 +250,7 @@ describe("Create new Customer ID", function () {
 
   test("fails:customer id already created", async function () {
     try {
-      await User.newCustomer("u1", "customerID1");
+      await User.newCustomer("u1", { stripe_id: "testCustomerID" });
       fail();
     } catch (err) {
       expect(err instanceof BadRequestError).toBeTruthy();

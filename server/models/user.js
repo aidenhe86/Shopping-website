@@ -190,7 +190,7 @@ class User {
   /** create stripe customer id when customer first time purchase.
    *  Only when stripe customer id is empty.
    */
-  static async newCustomer(username, stripe_id) {
+  static async newCustomer(username, { stripe_id }) {
     // check if username exist
     const duplicateCheck1 = await db.query(
       `SELECT username
@@ -204,13 +204,13 @@ class User {
     }
     // check if user have customer id
     const duplicateCheck2 = await db.query(
-      `SELECT stripe_id
+      `SELECT stripe_id AS "stripeId"
            FROM users
-           WHERE stripe_id = $1`,
-      [stripe_id]
+           WHERE username = $1`,
+      [username]
     );
 
-    if (duplicateCheck2.rows[0]) {
+    if (duplicateCheck2.rows[0].stripeId) {
       throw new BadRequestError(`Customer ID already created!`);
     }
 
@@ -218,11 +218,11 @@ class User {
       `UPDATE users
         SET stripe_id = $1
         WHERE username = $2
-        RETURNING stripe_id AS "stripeId"`,
+        RETURNING username, stripe_id AS "stripeId"`,
       [stripe_id, username]
     );
-    const customerID = result.rows[0];
-    return customerID;
+    const user = result.rows[0];
+    return user;
   }
 
   /** Delete given user from database; returns undefined. */

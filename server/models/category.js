@@ -43,7 +43,7 @@ class Category {
 
   /** Given a category, return all items under that category
    * Returns {category,imageUrl, items}
-   *    where items is [{id,title,image_url,quantity, price},...]
+   *    where items is [{id,title,image_url,quantity, price, description},...]
    *
    * Throws NotFoundError if not found.
    */
