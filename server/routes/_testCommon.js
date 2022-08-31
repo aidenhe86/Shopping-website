@@ -6,6 +6,7 @@ const Category = require("../models/category");
 const Item = require("../models/item");
 const { createToken } = require("../helpers/tokens");
 
+const testItemIds = [];
 async function commonBeforeAll() {
   await db.query("DELETE FROM items");
   await db.query("DELETE FROM categories");
@@ -29,32 +30,38 @@ async function commonBeforeAll() {
     imageUrl: "http://c4.img",
   });
 
-  await Item.create({
-    categories: ["category1", "category2"],
-    title: "i1",
-    imageUrl: "http://i1.img",
-    quantity: 100,
-    price: "1.00",
-    description: "test item 1",
-  });
+  testItemIds[0] = (
+    await Item.create({
+      categories: ["category1", "category2"],
+      title: "i1",
+      imageUrl: "http://i1.img",
+      quantity: 100,
+      price: "1.00",
+      description: "test item 1",
+    })
+  ).id;
 
-  await Item.create({
-    categories: ["category2"],
-    title: "i2",
-    imageUrl: "http://i2.img",
-    quantity: 200,
-    price: "2.39",
-    description: "test item 2",
-  });
+  testItemIds[1] = (
+    await Item.create({
+      categories: ["category2"],
+      title: "i2",
+      imageUrl: "http://i2.img",
+      quantity: 200,
+      price: "2.39",
+      description: "test item 2",
+    })
+  ).id;
 
-  await Item.create({
-    categories: ["category1", "category2", "category3"],
-    title: "i3",
-    imageUrl: "http://i3.img",
-    quantity: 3300,
-    price: "8.49",
-    description: "test item 3",
-  });
+  testItemIds[2] = (
+    await Item.create({
+      categories: ["category1", "category2", "category3"],
+      title: "i3",
+      imageUrl: "http://i3.img",
+      quantity: 3300,
+      price: "8.49",
+      description: "test item 3",
+    })
+  ).id;
 
   await User.register({
     username: "u1",
@@ -106,4 +113,5 @@ module.exports = {
   u1Token,
   u2Token,
   adminToken,
+  testItemIds,
 };

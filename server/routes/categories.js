@@ -15,7 +15,13 @@ const router = new express.Router();
 
 /** POST / { category } =>  { category }
  *
- * category should be { category, imageUrl }
+ * category should be { categories,
+    title,
+    imageUrl,
+    quantity,
+    price,
+    description, }
+    where categories = [category,...]
  *
  * Returns { category, imageUrl }
  *

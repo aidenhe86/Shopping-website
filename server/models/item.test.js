@@ -6,6 +6,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  testItemIds,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -13,7 +14,7 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-// create
+// create an item
 describe("create items", function () {
   let newItem = {
     categories: ["category1", "category3"],
@@ -56,8 +57,8 @@ describe("create items", function () {
       [item.id]
     );
     expect(m2m.rows).toEqual([
-      { category_id: 1, item_id: item.id },
-      { category_id: 3, item_id: item.id },
+      { category_id: expect.any(Number), item_id: item.id },
+      { category_id: expect.any(Number), item_id: item.id },
     ]);
   });
 
@@ -104,11 +105,12 @@ describe("create items", function () {
   });
 });
 
+//  get an item
 describe("get", function () {
   test("works", async function () {
-    let item = await Item.get(1);
+    let item = await Item.get(testItemIds[0]);
     expect(item).toEqual({
-      id: 1,
+      id: testItemIds[0],
       title: "item1",
       imageUrl: "http://i1.img",
       quantity: 100,
@@ -118,7 +120,7 @@ describe("get", function () {
     });
   });
 
-  test("works: not found item id", async function () {
+  test("fail: not found item id", async function () {
     try {
       await Item.get(0);
       fail();
@@ -128,17 +130,61 @@ describe("get", function () {
   });
 });
 
+// purchase an item
+describe("purchase", function () {
+  test("works", async function () {
+    let item = await Item.purchase(testItemIds[0], { amount: 10 });
+    expect(item).toEqual({
+      id: expect.any(Number),
+      title: "item1",
+      imageUrl: "http://i1.img",
+      quantity: 90,
+      price: "3.00",
+      description: "test item1",
+    });
+  });
+
+  test("fail: not valid id", async function () {
+    try {
+      await Item.purchase(0, { amount: 10 });
+      fail();
+    } catch (e) {
+      expect(e instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test("fail: exceed quantity", async function () {
+    try {
+      await Item.purchase(testItemIds[0], { amount: 200 });
+      fail();
+    } catch (e) {
+      expect(e instanceof BadRequestError).toBeTruthy();
+    }
+  });
+
+  test("fail: invalid data", async function () {
+    try {
+      await Item.purchase(testItemIds[0], { amount: "not a number" });
+      fail();
+    } catch (e) {
+      expect(e instanceof BadRequestError).toBeTruthy();
+    }
+  });
+});
+
+// update an item
 describe("update", function () {
   const updateData = {
+    categories: ["category1", "category3"],
     title: "test",
     quantity: 500,
     price: "3.14",
   };
 
   test("works", async function () {
-    let item = await Item.update(1, updateData, ["category1", "category3"]);
+    let item = await Item.update(testItemIds[0], updateData);
     expect(item).toEqual({
-      id: 1,
+      id: testItemIds[0],
       ...updateData,
       imageUrl: "http://i1.img",
       description: "test item1",
@@ -148,7 +194,7 @@ describe("update", function () {
 
   test("fail: item not found", async function () {
     try {
-      await Item.update(0, updateData, ["category1", "category3"]);
+      await Item.update(0, updateData);
       fail();
     } catch (e) {
       expect(e instanceof NotFoundError).toBeTruthy();
@@ -157,7 +203,7 @@ describe("update", function () {
 
   test("fail:bad request with no data", async function () {
     try {
-      await Item.update(1, {}, ["category1", "category3"]);
+      await Item.update(testItemIds[0], {});
       fail();
     } catch (e) {
       expect(e instanceof BadRequestError).toBeTruthy();
@@ -166,7 +212,7 @@ describe("update", function () {
 
   test("fail:bad request with no category", async function () {
     try {
-      await Item.update(1, updateData, []);
+      await Item.update(testItemIds[0], { ...updateData, categories: [] });
       fail();
     } catch (e) {
       expect(e instanceof BadRequestError).toBeTruthy();
@@ -175,7 +221,10 @@ describe("update", function () {
 
   test("fail if not found category", async function () {
     try {
-      await Item.update(1, updateData, ["category1000"]);
+      await Item.update(testItemIds[0], {
+        ...updateData,
+        categories: ["not exist category"],
+      });
       fail();
     } catch (e) {
       expect(e instanceof NotFoundError).toBeTruthy();
@@ -185,8 +234,10 @@ describe("update", function () {
 
 describe("delete", function () {
   test("works", async function () {
-    await Item.remove(1);
-    const res = await db.query("SELECT * FROM items WHERE id = 1");
+    await Item.remove(testItemIds[0]);
+    const res = await db.query(
+      `SELECT * FROM items WHERE id = ${testItemIds[0]}`
+    );
     expect(res.rows.length).toEqual(0);
   });
 

@@ -84,7 +84,7 @@ describe("get", function () {
       imageUrl: "http://c2.img",
       items: [
         {
-          id: 1,
+          id: expect.any(Number),
           title: "item1",
           imageUrl: "http://i1.img",
           quantity: 100,
@@ -92,7 +92,7 @@ describe("get", function () {
           description: "test item1",
         },
         {
-          id: 2,
+          id: expect.any(Number),
           title: "item2",
           imageUrl: "http://i2.img",
           quantity: 200,
@@ -136,7 +136,7 @@ describe("update", function () {
     );
     expect(result.rows).toEqual([
       {
-        id: 1,
+        id: expect.any(Number),
         ...updateData,
       },
     ]);

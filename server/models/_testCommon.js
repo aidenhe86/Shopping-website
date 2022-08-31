@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const db = require("../db.js");
 const { BCRYPT_WORK_FACTOR } = require("../config");
 
+const testItemIds = [];
 async function commonBeforeAll() {
   await db.query("DELETE FROM items");
   await db.query("DELETE FROM categories");
@@ -10,24 +11,26 @@ async function commonBeforeAll() {
   await db.query("DELETE FROM item_category");
 
   // insert category
-  await db.query(`
-    INSERT INTO categories(id,category, image_url)
-    VALUES (1,'category1', 'http://c1.img'),
-           (2,'category2', 'http://c2.img'),
-           (3,'category3', 'http://c3.img')`);
+  let catRes = await db.query(`
+    INSERT INTO categories(category, image_url)
+    VALUES ('category1', 'http://c1.img'),
+           ('category2', 'http://c2.img'),
+           ('category3', 'http://c3.img')
+    RETURNING id`);
+
+  let catID = catRes.rows;
 
   // insert user
   await db.query(
     `
-    INSERT INTO users(id,
-                      username,
+    INSERT INTO users(username,
                       password,
                       first_name,
                       last_name,
                       email,
                       stripe_id)
-    VALUES (1,'u1', $1, 'U1F', 'U1L', 'u1@email.com','customerID1'),
-           (2,'u2', $2, 'U2F', 'U2L', 'u2@email.com','')
+    VALUES ('u1', $1, 'U1F', 'U1L', 'u1@email.com','customerID1'),
+           ('u2', $2, 'U2F', 'U2L', 'u2@email.com','')
     RETURNING username`,
     [
       await bcrypt.hash("password1", BCRYPT_WORK_FACTOR),
@@ -36,24 +39,27 @@ async function commonBeforeAll() {
   );
 
   // insert items
-  await db.query(
+  const itemRes = await db.query(
     `
-    INSERT INTO items(id,
-                      title,
+    INSERT INTO items(title,
                       image_url,
                       quantity,
                       price,
                       description)
-    VALUES (1,'item1','http://i1.img',100,3,'test item1'),
-          (2,'item2','http://i2.img',200,7,'test item2')`
+    VALUES ('item1','http://i1.img',100,3,'test item1'),
+          ('item2','http://i2.img',200,7,'test item2')
+    RETURNING id`
   );
+
+  testItemIds[0] = itemRes.rows[0].id;
+  testItemIds[1] = itemRes.rows[1].id;
 
   // item_category m2m relationship
   await db.query(`
       INSERT INTO item_category(category_id, item_id)
-      VALUES(1,1),
-            (2,2),
-            (2,1)`);
+      VALUES(${catID[0].id},${testItemIds[0]}),
+            (${catID[1].id},${testItemIds[1]}),
+            (${catID[1].id},${testItemIds[0]})`);
 }
 
 async function commonBeforeEach() {
@@ -73,4 +79,5 @@ module.exports = {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  testItemIds,
 };

@@ -7,7 +7,7 @@ const { sqlForPartialUpdate } = require("../helpers/sql");
 class Item {
   /**Create a new item and return new item data
    * accpet {[category,...],title, image_url,quantity,price,description}
-   * return {[category,...],id,title, image_url,quantity,price,description}
+   * return {[{category},...],id,title, image_url,quantity,price,description}
    */
   static async create({
     categories,
@@ -24,29 +24,6 @@ class Item {
     const catID = [];
 
     // precheck for categories if not exist
-
-    // run one at a time
-    // for (let category of categories) {
-    //   let preCheckCat = await db.query(
-    //     `SELECT id, category FROM categories WHERE category = $1`,
-    //     [category]
-    //   );
-    //   let preCheck1 = preCheckCat.rows[0];
-    //   if (!preCheck1) throw new NotFoundError(`No category:${category} Found!`);
-    //   // save category id if found
-    //   catID.push(preCheck1.id);
-    // }
-
-    // run all query together
-    // const catPromise = async (c) => {
-    //   let preCheckCat = await db.query(
-    //     `SELECT id, category FROM categories WHERE category = $1`,
-    //     [c]
-    //   );
-    //   let preCheck1 = preCheckCat.rows[0];
-    //   if (!preCheck1) throw new NotFoundError(`No category:${c} Found!`);
-    //   catID.push(preCheck1.id);
-    // };
 
     await Promise.all(
       categories.map(async (c) => {
@@ -85,17 +62,6 @@ class Item {
     const itemID = newItem.id;
 
     // insert into many to many relationship table
-
-    // for (let cID of catID) {
-    //   let insert = await db.query(
-    //     `INSERT INTO item_category
-    //         (category_id,item_id)
-    //         VALUES($1,$2)`,
-    //     [cID, itemID]
-    //   );
-    //   if (!insert.rows)
-    //     throw new BadRequestError(`Fail to create many to many relationshop!`);
-    // }
 
     const m2mPromise = async (cID) => {
       await db.query(
@@ -162,17 +128,69 @@ class Item {
     return item;
   }
 
-  /** Update item data
-   * accept {id,[category,...],data}
-   * where data is the item data will be update
+  /**Purchase item
+   * accpet {id,amount}
    *
    * Returns {categories,id,title, image_url,quantity,price,description}
    * where categories = [{category},...]
    */
-  static async update(id, data, categories) {
+  static async purchase(id, { amount }) {
+    // precheck for input
+    if (!Number.isInteger(amount))
+      throw new BadRequestError(
+        `Please enter the amount you want to purchase!`
+      );
+
+    // get item
+    const itemRes = await db.query(
+      `
+      SELECT title, quantity FROM items WHERE id = $1`,
+      [id]
+    );
+    const item = itemRes.rows[0];
+    if (!item) throw new NotFoundError(`No Item ID:${id} found!`);
+
+    // check if have enough stack available
+    let remain = item.quantity - amount;
+    if (remain < 0)
+      throw new BadRequestError(
+        `Currently ${item.title} only have ${item.quantity} available.`
+      );
+
+    // update item quantity
+    const result = await db.query(
+      `UPDATE items 
+        SET quantity = $1 
+        WHERE id = $2 
+        RETURNING 
+          id,
+          title, 
+          image_url AS "imageUrl",
+          quantity,
+          price,
+          description`,
+      [remain, id]
+    );
+    return result.rows[0];
+  }
+
+  /** Update item data
+   * accept {id,data}
+   * where data is the item data will be update and categories
+   *
+   * Returns {categories,id,title, image_url,quantity,price,description}
+   * where categories = [{category},...]
+   */
+  static async update(id, data) {
+    // get categories from input data
+    const categories = data.categories;
     // categories cannot be empty
-    if (!categories.length)
+    if (!categories || !categories.length)
       throw new BadRequestError(`Item must contain at least one category!`);
+
+    // create a copy of data and remove categories
+    const itemData = { ...data };
+    delete itemData.categories;
 
     // precheck for categories
     const catID = [];
@@ -189,7 +207,7 @@ class Item {
     await Promise.all(categories.map((c) => catPromise(c)));
 
     // update item info
-    const { setCols, values } = sqlForPartialUpdate(data, {
+    const { setCols, values } = sqlForPartialUpdate(itemData, {
       imageUrl: "image_url",
     });
     const itemVarIdx = "$" + (values.length + 1);

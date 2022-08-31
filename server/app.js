@@ -9,7 +9,7 @@ const { authenticateJWT } = require("./middleware/auth");
 const authRoutes = require("./routes/auth");
 const usersRoutes = require("./routes/users");
 const categoriesRoutes = require("./routes/categories");
-// const itemsRoutes = require("./routes/items");
+const itemsRoutes = require("./routes/items");
 
 const app = express();
 
@@ -30,7 +30,7 @@ app.use(authenticateJWT);
 app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
 app.use("/categories", categoriesRoutes);
-// app.use("/items", itemsRoutes);
+app.use("/items", itemsRoutes);
 
 if (process.env.NODE_ENV !== "dev") {
   // Catch-All for any request that doesn't match a route
