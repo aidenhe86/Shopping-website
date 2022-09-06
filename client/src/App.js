@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import "./App.css";
-import Homepage from "./homepage";
 import Navbar from "./Navbar";
+import ShoppingRoutes from "./ShoppingRoutes";
 
 import { BrowserRouter } from "react-router-dom";
 
@@ -18,7 +18,7 @@ function App() {
     <BrowserRouter>
       <Navbar />
       <div className="App">
-        <Homepage />
+        <ShoppingRoutes />
       </div>
     </BrowserRouter>
   );
