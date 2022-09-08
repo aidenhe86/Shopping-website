@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:3001";
+const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:4000";
 
 /** API Class.
  *
@@ -16,7 +16,7 @@ class ShoppingApi {
     console.debug("API Call:", endpoint, data, method);
 
     const url = `${BASE_URL}/${endpoint}`;
-    const headers = { Authorization: `Bearer ${JoblyApi.token}` };
+    const headers = { Authorization: `Bearer ${ShoppingApi.token}` };
     // check if method is get, if yes set to data, otherwise set to empty obj
     // this ensures get data is sent in the url
     // and post sends data as json
@@ -62,7 +62,7 @@ class ShoppingApi {
 
   /** Purchase an item */
 
-  static async purchase(id) {
+  static async purchase(id, data) {
     await this.request(`items/${id}/purchase`, data, "post");
   }
 
@@ -91,3 +91,33 @@ class ShoppingApi {
 }
 
 export default ShoppingApi;
+
+// export function useSaveProfile() {
+//   return useCallback(
+//     ({ username, data }) => shoppingAPI.saveProfile(username, data),
+//     []
+//   );
+// }
+
+// const saveProfile = useSaveProfile();
+
+// saveProfile({
+//   username: "johndoe",
+//   data: {
+//     something: 1,
+//     foo: "bar",
+//   },
+// });
+
+// useItems.js
+// export function useItems() {
+//   return () => shoppingAPI.getItems()
+// }
+
+// // in a react component
+// const getItems = useItems()
+// const [items, setItems] = useState([])
+
+// useEffect(() => {
+//   getItems().then(items => setItems)
+// }, [])

@@ -19,7 +19,9 @@ function authenticateJWT(req, res, next) {
     const authHeader = req.headers && req.headers.authorization;
     if (authHeader) {
       const token = authHeader.replace(/^[Bb]earer /, "").trim();
-      res.locals.user = jwt.verify(token, SECRET_KEY);
+      req.locals = req.locals || {};
+      req.locals.user = jwt.verify(token, SECRET_KEY);
+      // use request
     }
     return next();
   } catch (err) {
@@ -34,7 +36,7 @@ function authenticateJWT(req, res, next) {
 
 function ensureLoggedIn(req, res, next) {
   try {
-    if (!res.locals.user) throw new UnauthorizedError();
+    if (!req.locals?.user) throw new UnauthorizedError();
     return next();
   } catch (err) {
     return next(err);
@@ -48,7 +50,8 @@ function ensureLoggedIn(req, res, next) {
 
 function ensureAdmin(req, res, next) {
   try {
-    if (!res.locals.user || !res.locals.user.isAdmin)
+    if (!req.locals?.user || !req.locals?.user.isAdmin)
+      // if (!req.locals.user || !req.locals.user.isAdmin)
       throw new UnauthorizedError();
     return next();
   } catch (err) {
@@ -58,7 +61,7 @@ function ensureAdmin(req, res, next) {
 
 function ensureAdminOrCorrectUser(req, res, next) {
   try {
-    let user = res.locals.user;
+    let user = req.locals?.user;
     if (!(user && (user.isAdmin || user.username === req.params.username)))
       throw new UnauthorizedError();
     return next();

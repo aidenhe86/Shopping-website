@@ -1,9 +1,12 @@
-import { useEffect } from "react";
-import "./App.css";
+import React, { useEffect, useState } from "react";
+import { decodeToken } from "react-jwt";
+import { BrowserRouter } from "react-router-dom";
 import Navbar from "./Navbar";
 import ShoppingRoutes from "./ShoppingRoutes";
-
-import { BrowserRouter } from "react-router-dom";
+import useLocalStorageState from "./hooks/useLocalStorageState";
+import UserContext from "./auth/UserContext";
+import ShoppingApi from "./api";
+import Loading from "./Loading";
 
 function App() {
   useEffect(() => {
@@ -14,12 +17,63 @@ function App() {
       });
   }, []);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [token, setToken] = useLocalStorageState("userToken");
+
+  // get current user when first load and whenever token changed
+  useEffect(() => {
+    // get current user, if no user return null
+    const getCurrentUser = async () => {
+      setIsLoading(true);
+      if (token) {
+        try {
+          let { username } = decodeToken(token);
+          ShoppingApi.token = token;
+          let currentUser = await ShoppingApi.getCurrentUser(username);
+          setCurrentUser(currentUser);
+        } catch (e) {
+          setCurrentUser(null);
+        }
+      }
+      setIsLoading(false);
+    };
+    getCurrentUser();
+  }, [token]);
+
+  const login = async (data) => {
+    try {
+      let token = await ShoppingApi.login(data);
+      setToken(token);
+      return { success: true };
+    } catch (e) {
+      return { success: false, e };
+    }
+  };
+  const signup = async (data) => {
+    try {
+      let token = await ShoppingApi.signup(data);
+      setToken(token);
+      return { success: true };
+    } catch (e) {
+      return { success: false, e };
+    }
+  };
+  const logout = () => {
+    setToken(null);
+    setCurrentUser(null);
+  };
+
+  if (isLoading) return <Loading />;
+
   return (
     <BrowserRouter>
-      <Navbar />
-      <div className="App">
-        <ShoppingRoutes />
-      </div>
+      <UserContext.Provider value={{ currentUser, setCurrentUser }}>
+        <Navbar logout={logout} />
+        <div className="App">
+          <ShoppingRoutes login={login} signup={signup} />
+        </div>
+      </UserContext.Provider>
     </BrowserRouter>
   );
 }

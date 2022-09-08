@@ -1,15 +1,14 @@
 import React, { useContext, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-// import UserContext from "../auth/UserContext";
+import UserContext from "./auth/UserContext";
 
 // use Outlet to protect all the private routes
 const ProtectRoutes = () => {
-  // const { currentUser } = useContext(UserContext);
-  const { currentUser } = "test";
+  const { currentUser } = useContext(UserContext);
   const navigate = useNavigate();
   useEffect(() => {
     if (!currentUser) navigate("/");
-  }, []);
+  }, [currentUser, navigate]);
   return <Outlet />;
 };
 

@@ -6,6 +6,7 @@ CREATE DATABASE shopping;
 \connect shopping
 
 \i shopping-schema.sql
+\i shopping-seed.sql
 
 \echo 'Delete and recreate shopping_test db?'
 \prompt 'Return for yes or control-C to cancel > ' foo

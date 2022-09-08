@@ -34,8 +34,8 @@ const SignupForm = ({ signup }) => {
   };
   return (
     <Form onSubmit={handleSubmit}>
-      <h2>Sign Up</h2>
       <div className="container col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+        <h2 className="text-center">Sign Up</h2>
         <Form.Group
           as={Row}
           className="mb-3"

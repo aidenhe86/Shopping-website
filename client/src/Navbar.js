@@ -1,11 +1,10 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { Container, Nav, Navbar } from "react-bootstrap";
-// import UserContext from "../auth/UserContext";
+import UserContext from "./auth/UserContext";
 
 function NavBar({ logout }) {
-  //   const { currentUser } = useContext(UserContext);
-  const currentUser = "";
+  const { currentUser } = useContext(UserContext);
   const login = () => {
     return (
       <Nav className="me-auto">
@@ -18,7 +17,7 @@ function NavBar({ logout }) {
         <Nav.Link as={Link} to="/user">
           User
         </Nav.Link>
-        <Nav.Link as={Link} to="/signout">
+        <Nav.Link as={Link} to="/" onClick={logout}>
           Sign Out
         </Nav.Link>
       </Nav>
