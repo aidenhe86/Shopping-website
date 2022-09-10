@@ -3,6 +3,9 @@
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
 const { sqlForPartialUpdate } = require("../helpers/sql");
+const stripe = require("stripe")(
+  "sk_test_51LgaXPLlKfZiJaI1wZ8brUMaTZ0P8GvarexbVQm5IG54CynzmwkU8Qw2TapGETauIORmaHdxBlap0ZbknuubAu6C009JPLkZfQ"
+);
 
 class Item {
   /**Create a new item and return new item data
@@ -144,7 +147,7 @@ class Item {
     // get item
     const itemRes = await db.query(
       `
-      SELECT title, quantity FROM items WHERE id = $1`,
+      SELECT title, price, quantity FROM items WHERE id = $1`,
       [id]
     );
     const item = itemRes.rows[0];
@@ -157,21 +160,22 @@ class Item {
         `Currently ${item.title} only have ${item.quantity} available.`
       );
 
+    // create stripe product
+    const product = await stripe.products.create({ name: item.title });
+    const price = await stripe.prices.create({
+      product: product.id,
+      unit_amount: item.price * 100,
+      currency: "usd",
+    });
+
     // update item quantity
-    const result = await db.query(
+    await db.query(
       `UPDATE items 
         SET quantity = $1 
-        WHERE id = $2 
-        RETURNING 
-          id,
-          title, 
-          image_url AS "imageUrl",
-          quantity,
-          price,
-          description`,
+        WHERE id = $2 `,
       [remain, id]
     );
-    return result.rows[0];
+    return price.id;
   }
 
   /** Update item data

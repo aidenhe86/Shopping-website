@@ -82,7 +82,7 @@ class ShoppingApi {
 
   /** Save user profile page. */
 
-  static async saveProfile(username, data) {
+  static async updateCurrentUser(username, data) {
     let res = await this.request(`users/${username}`, data, "patch");
     return res.user;
   }

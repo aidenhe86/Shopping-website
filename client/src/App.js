@@ -20,6 +20,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [token, setToken] = useLocalStorageState("userToken");
+  const [shopList, setShopList] = useState(new Set([]));
 
   // get current user when first load and whenever token changed
   useEffect(() => {
@@ -32,6 +33,7 @@ function App() {
           ShoppingApi.token = token;
           let currentUser = await ShoppingApi.getCurrentUser(username);
           setCurrentUser(currentUser);
+          setShopList(new Set(currentUser.shopList));
         } catch (e) {
           setCurrentUser(null);
         }

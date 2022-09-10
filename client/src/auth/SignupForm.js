@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Col, Row } from "react-bootstrap";
-
+import Alert from "../common/Alert";
 // signup form
 
 const SignupForm = ({ signup }) => {
@@ -35,6 +35,7 @@ const SignupForm = ({ signup }) => {
   return (
     <Form onSubmit={handleSubmit}>
       <div className="container col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+        {formErrors.length ? <Alert messages={formErrors} /> : null}
         <h2 className="text-center">Sign Up</h2>
         <Form.Group
           as={Row}
@@ -120,7 +121,6 @@ const SignupForm = ({ signup }) => {
             Submit
           </Button>
         </div>
-        {formErrors.length ? formErrors.map((e) => <div>{e}</div>) : null}
       </div>
     </Form>
   );

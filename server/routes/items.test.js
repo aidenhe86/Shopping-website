@@ -89,16 +89,7 @@ describe("POST /items/:id/purchase", function () {
       .post(`/items/${testItemIds[0]}/purchase`)
       .send({ amount: 5 })
       .set("authorization", `Bearer ${u1Token}`);
-    expect(res.body).toEqual({
-      item: {
-        id: testItemIds[0],
-        title: "i1",
-        imageUrl: "http://i1.img",
-        quantity: 95,
-        price: "1.00",
-        description: "test item 1",
-      },
-    });
+    expect(res.statusCode).toEqual(303);
   });
 
   test("works for admin", async function () {
@@ -106,16 +97,7 @@ describe("POST /items/:id/purchase", function () {
       .post(`/items/${testItemIds[0]}/purchase`)
       .send({ amount: 5 })
       .set("authorization", `Bearer ${adminToken}`);
-    expect(res.body).toEqual({
-      item: {
-        id: testItemIds[0],
-        title: "i1",
-        imageUrl: "http://i1.img",
-        quantity: 95,
-        price: "1.00",
-        description: "test item 1",
-      },
-    });
+    expect(res.statusCode).toEqual(303);
   });
 
   test("fail for anon", async function () {

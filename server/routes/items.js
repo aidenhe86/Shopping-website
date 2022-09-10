@@ -8,6 +8,9 @@ const express = require("express");
 const { BadRequestError } = require("../expressError");
 const { ensureAdmin, ensureLoggedIn } = require("../middleware/auth");
 const Item = require("../models/item");
+const stripe = require("stripe")(
+  "sk_test_51LgaXPLlKfZiJaI1wZ8brUMaTZ0P8GvarexbVQm5IG54CynzmwkU8Qw2TapGETauIORmaHdxBlap0ZbknuubAu6C009JPLkZfQ"
+);
 
 const itemNewSchema = require("../schemas/itemNew.json");
 const itemPurchaseSchema = require("../schemas/itemPurchase.json");
@@ -85,8 +88,21 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
       const errs = validator.errors.map((e) => e.stack);
       throw new BadRequestError(errs);
     }
-    const item = await Item.purchase(req.params.id, req.body);
-    return res.json({ item });
+
+    const itemId = await Item.purchase(req.params.id, req.body);
+    const session = await stripe.checkout.sessions.create({
+      line_items: [
+        {
+          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+          price: itemId,
+          quantity: req.body.amount,
+        },
+      ],
+      mode: "payment",
+      success_url: "http://localhost:4000/",
+      cancel_url: "http://localhost:4000/",
+    });
+    return res.redirect(303, session.url);
   } catch (err) {
     return next(err);
   }
