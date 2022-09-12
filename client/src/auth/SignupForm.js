@@ -27,7 +27,7 @@ const SignupForm = ({ signup }) => {
     let result = await signup(formData);
     // check if successful login, if not show error message
     if (result.success === true) {
-      navigate("/categories");
+      navigate("/");
     } else {
       setFormErrors(result.e);
     }

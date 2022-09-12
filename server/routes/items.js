@@ -93,16 +93,15 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
-          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
           price: itemId,
           quantity: req.body.amount,
         },
       ],
       mode: "payment",
-      success_url: "http://localhost:4000/",
-      cancel_url: "http://localhost:4000/",
+      success_url: "/items/success",
+      cancel_url: "/items/cancel",
     });
-    return res.redirect(303, session.url);
+    return res.json({ url: session.url });
   } catch (err) {
     return next(err);
   }

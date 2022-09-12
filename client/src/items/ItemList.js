@@ -1,5 +1,6 @@
 import React from "react";
-import { Button, Card, Col, Row } from "react-bootstrap";
+import { Card, Col, Row } from "react-bootstrap";
+import ItemButton from "./ItemButton";
 
 // Show a list of items
 const ItemList = ({ items }) => {
@@ -14,7 +15,7 @@ const ItemList = ({ items }) => {
               <Col>Quantity: {i.quantity}</Col>
               <Col>Price: ${i.price}</Col>
               <Col>{i.description}</Col>
-              <Button variant="primary">View More</Button>
+              <ItemButton itemId={i.id} price={i.price} />
             </Card.Body>
           </Card>
         </Col>

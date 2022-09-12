@@ -20,7 +20,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [token, setToken] = useLocalStorageState("userToken");
-  const [shopList, setShopList] = useState(new Set([]));
 
   // get current user when first load and whenever token changed
   useEffect(() => {
@@ -33,7 +32,6 @@ function App() {
           ShoppingApi.token = token;
           let currentUser = await ShoppingApi.getCurrentUser(username);
           setCurrentUser(currentUser);
-          setShopList(new Set(currentUser.shopList));
         } catch (e) {
           setCurrentUser(null);
         }
@@ -43,6 +41,7 @@ function App() {
     getCurrentUser();
   }, [token]);
 
+  // handle login
   const login = async (data) => {
     try {
       let token = await ShoppingApi.login(data);
@@ -52,6 +51,8 @@ function App() {
       return { success: false, e };
     }
   };
+
+  // handle sign up
   const signup = async (data) => {
     try {
       let token = await ShoppingApi.signup(data);
@@ -61,16 +62,23 @@ function App() {
       return { success: false, e };
     }
   };
+
+  // handle log out
   const logout = () => {
     setToken(null);
     setCurrentUser(null);
+  };
+
+  // make api calls to  purchase
+  const purchase = async (id, amt) => {
+    await ShoppingApi.purchase(id, amt);
   };
 
   if (isLoading) return <Loading />;
 
   return (
     <BrowserRouter>
-      <UserContext.Provider value={{ currentUser, setCurrentUser }}>
+      <UserContext.Provider value={{ currentUser, setCurrentUser, purchase }}>
         <Navbar logout={logout} />
         <div className="App">
           <ShoppingRoutes login={login} signup={signup} />

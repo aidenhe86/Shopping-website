@@ -63,7 +63,9 @@ class ShoppingApi {
   /** Purchase an item */
 
   static async purchase(id, data) {
-    await this.request(`items/${id}/purchase`, data, "post");
+    let res = await this.request(`items/${id}/purchase`, data, "post");
+    window.location.href = res.url;
+    // return res.url;
   }
 
   /** Get token for login from username, password. */
