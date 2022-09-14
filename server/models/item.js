@@ -3,9 +3,7 @@
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
 const { sqlForPartialUpdate } = require("../helpers/sql");
-const stripe = require("stripe")(
-  "sk_test_51LgaXPLlKfZiJaI1wZ8brUMaTZ0P8GvarexbVQm5IG54CynzmwkU8Qw2TapGETauIORmaHdxBlap0ZbknuubAu6C009JPLkZfQ"
-);
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 
 class Item {
   /**Create a new item and return new item data
@@ -48,18 +46,36 @@ class Item {
     const preCheck2 = preCheckItem.rows[0];
     if (preCheck2) throw new BadRequestError(`Item:${title} already created!`);
 
+    // create stripe item product and price id
+    const stripeProduct = await stripe.products.create({ name: title });
+    const stripePrice = await stripe.prices.create({
+      product: stripeProduct.id,
+      unit_amount: Math.floor(price * 100),
+      currency: "usd",
+    });
+
     // create items
     const result = await db.query(
       `INSERT INTO items
-        (title, image_url, quantity,price, description) 
-        VALUES($1,$2,$3,$4,$5) 
+        (title, image_url, quantity,price, description,product_id,price_id) 
+        VALUES($1,$2,$3,$4,$5,$6,$7) 
         RETURNING id,
                   title,
                   image_url AS "imageUrl",
                   quantity,
                   price,
-                  description`,
-      [title, imageUrl, quantity, price, description]
+                  description,
+                  product_id AS "productId",
+                  price_id AS "priceId"`,
+      [
+        title,
+        imageUrl,
+        quantity,
+        price,
+        description,
+        stripeProduct.id,
+        stripePrice.id,
+      ]
     );
     const newItem = result.rows[0];
     const itemID = newItem.id;
@@ -106,7 +122,9 @@ class Item {
             image_url AS "imageUrl", 
             quantity,
             price,
-            description
+            description,
+            product_id AS "productId",
+            price_id AS "priceId"
         FROM items
         WHERE id = $1`,
       [id]
@@ -160,22 +178,21 @@ class Item {
         `Currently ${item.title} only have ${item.quantity} available.`
       );
 
-    // create stripe product
-    const product = await stripe.products.create({ name: item.title });
-    const price = await stripe.prices.create({
-      product: product.id,
-      unit_amount: Math.floor(item.price * 100),
-      currency: "usd",
-    });
-
     // update item quantity
-    await db.query(
+    const result = await db.query(
       `UPDATE items 
         SET quantity = $1 
-        WHERE id = $2 `,
+        WHERE id = $2 
+        RETURNING 
+          id,
+          title, 
+          image_url AS "imageUrl",
+          quantity,
+          price,
+          description`,
       [remain, id]
     );
-    return price.id;
+    return result.rows[0];
   }
 
   /** Update item data
@@ -192,10 +209,6 @@ class Item {
     if (!categories || !categories.length)
       throw new BadRequestError(`Item must contain at least one category!`);
 
-    // create a copy of data and remove categories
-    const itemData = { ...data };
-    delete itemData.categories;
-
     // precheck for categories
     const catID = [];
 
@@ -210,9 +223,41 @@ class Item {
     };
     await Promise.all(categories.map((c) => catPromise(c)));
 
+    // get current item stripe/price id
+    const itemRes = await db.query(
+      `SELECT
+            product_id AS "productId",
+            price_id AS "priceId"
+        FROM items
+        WHERE id = $1`,
+      [id]
+    );
+    const item = itemRes.rows[0];
+    if (!item) throw new NotFoundError(`No Item ID:${id} found!`);
+
+    // create a copy of data and remove categories
+    const itemData = { ...data };
+    delete itemData.categories;
+
+    // check if edit name or price ,if yes update stripe product/price id
+    if (itemData.title) {
+      const product = await stripe.products.update(item.productId, {
+        name: itemData.title,
+      });
+      itemData.product_id = product.id;
+    }
+    if (itemData.price) {
+      const price = await stripe.prices.update(item.priceId, {
+        unit_amount: itemData.price * 100,
+      });
+      itemData.price_id = price.id;
+    }
+
     // update item info
     const { setCols, values } = sqlForPartialUpdate(itemData, {
       imageUrl: "image_url",
+      productId: "productId",
+      priceId: "priceId",
     });
     const itemVarIdx = "$" + (values.length + 1);
 
@@ -224,7 +269,9 @@ class Item {
                                 image_url AS "imageUrl",
                                 quantity,
                                 price,
-                                description`;
+                                description,
+                                product_id AS "productId",
+                                price_id AS "priceId"`;
     const result = await db.query(querySql, [...values, id]);
     const newItem = result.rows[0];
     if (!newItem) throw new NotFoundError(`No Item ID: ${id}`);

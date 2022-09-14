@@ -8,9 +8,7 @@ const express = require("express");
 const { BadRequestError } = require("../expressError");
 const { ensureAdmin, ensureLoggedIn } = require("../middleware/auth");
 const Item = require("../models/item");
-const stripe = require("stripe")(
-  "sk_test_51LgaXPLlKfZiJaI1wZ8brUMaTZ0P8GvarexbVQm5IG54CynzmwkU8Qw2TapGETauIORmaHdxBlap0ZbknuubAu6C009JPLkZfQ"
-);
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 
 const itemNewSchema = require("../schemas/itemNew.json");
 const itemPurchaseSchema = require("../schemas/itemPurchase.json");
@@ -76,7 +74,7 @@ router.get("/:id", async function (req, res, next) {
  *
  * Decrease quantity when customer purchase item
  *
- * Returns {[{category},...],id,title, image_url,quantity,price,description}
+ * Returns stripe payment url
  *
  * Authorization required: login
  */
@@ -89,17 +87,20 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
       throw new BadRequestError(errs);
     }
 
-    const itemId = await Item.purchase(req.params.id, req.body);
+    const item = await Item.get(req.params.id);
+    // let username = req.locals?.user.username;
+
+    // create stripe session
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
-          price: itemId,
+          price: item.priceId,
           quantity: req.body.amount,
         },
       ],
       mode: "payment",
-      success_url: "/items/success",
-      cancel_url: "/items/cancel",
+      success_url: "https://258f-67-81-250-68.ngrok.io/",
+      cancel_url: "https://258f-67-81-250-68.ngrok.io/",
     });
     return res.json({ url: session.url });
   } catch (err) {

@@ -11,8 +11,6 @@ const ItemButton = ({ itemId, price }) => {
       <Popover.Header as="h3">Purchase</Popover.Header>
       <Popover.Body>
         <div>
-          Amount: {amount}
-          <br></br>
           <Button
             variant="outline-primary"
             size="sm"
@@ -21,6 +19,7 @@ const ItemButton = ({ itemId, price }) => {
           >
             +
           </Button>
+          {amount}
           <Button
             variant="outline-primary"
             size="sm"
@@ -35,7 +34,6 @@ const ItemButton = ({ itemId, price }) => {
         </div>
         <hr></hr>
         <div>price:{(price * amount).toFixed(2)}</div>
-        <br></br>
         <div>
           <Button onClick={async () => await purchase(itemId, { amount })}>
             Purchase

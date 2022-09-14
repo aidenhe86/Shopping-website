@@ -4,7 +4,7 @@
 
 require("dotenv").config();
 
-const SECRET_KEY = process.env.SECRET_KEY || "secret-dev";
+const SECRET_KEY = process.env.SECRET_KEY;
 
 const PORT = +process.env.PORT || 4000;
 
@@ -15,9 +15,6 @@ function getDatabaseUri() {
     : process.env.DATABASE_URL || "shopping";
 }
 
-// Speed up bcrypt during tests, since the algorithm safety isn't being tested
-//
-// WJB: Evaluate in 2021 if this should be increased to 13 for non-test use
 const BCRYPT_WORK_FACTOR = process.env.NODE_ENV === "test" ? 1 : 12;
 
 module.exports = {
