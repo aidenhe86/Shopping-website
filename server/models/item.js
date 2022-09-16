@@ -149,13 +149,82 @@ class Item {
     return item;
   }
 
+  /**Place order */
+  static async order(username, id, amount) {
+    // precheck for user
+    const userRes = await db.query(
+      `SELECT username FROM users WHERE username = $1`,
+      [username]
+    );
+    if (!userRes.rows[0]) throw new NotFoundError(`No user: ${username}`);
+
+    // precheck for input
+    if (!Number.isInteger(amount))
+      throw new BadRequestError(
+        `Please enter the amount you want to purchase!`
+      );
+
+    // precheck for item
+    const itemRes = await db.query(
+      `SELECT id,title,quantity FROM items WHERE id = $1`,
+      [id]
+    );
+    const item = itemRes.rows[0];
+    if (!item) throw new NotFoundError(`No Item ID:${id} found!`);
+
+    // check if have enough stack available
+    let remain = item.quantity - amount;
+    if (remain < 0)
+      throw new BadRequestError(
+        `Currently ${item.title} only have ${item.quantity} available.`
+      );
+
+    // create a new order
+    const result = await db.query(
+      `INSERT INTO user_order
+        (username, item_id, amount) 
+        VALUES($1,$2,$3) 
+        RETURNING id,
+                  username,
+                  item_id AS "itemId",
+                  amount,
+                  payment`,
+      [username, id, amount]
+    );
+    const newOrder = result.rows[0];
+    return newOrder;
+  }
+
+  /**Order complete */
+  static async paidOrder(id) {
+    // precheck for order
+    const orderRes = await db.query(`SELECT id FROM user_order WHERE id = $1`, [
+      id,
+    ]);
+    if (!orderRes.rows[0])
+      throw new NotFoundError(`No Order ID: ${username} Found!`);
+
+    const result = await db.query(
+      `UPDATE user_order
+          SET payment = $1
+          WHERE id = $2
+          RETURNING id,
+                    username,
+                    item_id AS "itemId",
+                    amount,
+                    payment`,
+      [true, id]
+    );
+    return result.rows[0];
+  }
+
   /**Purchase item
    * accpet {id,amount}
    *
    * Returns {categories,id,title, image_url,quantity,price,description}
    * where categories = [{category},...]
    */
-  static async purchase(id, { amount }) {
+  static async purchase(id, amount) {
     // precheck for input
     if (!Number.isInteger(amount))
       throw new BadRequestError(

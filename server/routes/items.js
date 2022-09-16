@@ -4,11 +4,12 @@
 
 const jsonschema = require("jsonschema");
 const express = require("express");
+const stripe = require("stripe")(process.env.STRIPE_KEY);
+const ngrok = require("ngrok");
 
 const { BadRequestError } = require("../expressError");
 const { ensureAdmin, ensureLoggedIn } = require("../middleware/auth");
 const Item = require("../models/item");
-const stripe = require("stripe")(process.env.STRIPE_KEY);
 
 const itemNewSchema = require("../schemas/itemNew.json");
 const itemPurchaseSchema = require("../schemas/itemPurchase.json");
@@ -88,8 +89,13 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
     }
 
     const item = await Item.get(req.params.id);
-    // let username = req.locals?.user.username;
+    let username = req.locals?.user.username;
+    const order = await Item.order(username, req.params.id, req.body.amount);
 
+    // get created ngrok web page
+    const ngrokApi = ngrok.getApi();
+    const tunnels = await ngrokApi.listTunnels();
+    const url = tunnels.tunnels[1].public_url;
     // create stripe session
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -99,10 +105,31 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
         },
       ],
       mode: "payment",
-      success_url: "https://258f-67-81-250-68.ngrok.io/",
-      cancel_url: "https://258f-67-81-250-68.ngrok.io/",
+      success_url: `${url}/items/${order.id}/success`,
+      cancel_url: `${url}/items/cancel`,
     });
     return res.json({ url: session.url });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// when purchase successfully
+// anyone can access, need to update
+router.get("/:id/success", async function (req, res, next) {
+  try {
+    const paidOrder = await Item.paidOrder(req.params.id);
+    const item = await Item.purchase(paidOrder.itemId, paidOrder.amount);
+    return res.json({ item, purchase: true });
+  } catch (e) {
+    return next(e);
+  }
+});
+
+// when purchase failed
+router.get("/cancel", async function (req, res, next) {
+  try {
+    return res.json({ purchase: false });
   } catch (err) {
     return next(err);
   }

@@ -87,8 +87,6 @@ class ShoppingApi {
     let res = await this.request(`users/${username}`, data, "patch");
     return res.user;
   }
-
-  // Admin API routes
 }
 
 export default ShoppingApi;
