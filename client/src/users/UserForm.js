@@ -49,6 +49,13 @@ const UserForm = () => {
   return (
     <Form onSubmit={handleSubmit}>
       <div className="container">
+        {formErrors.length
+          ? formErrors.map((e) => (
+              <Alert key="danger" variant="danger">
+                {e}
+              </Alert>
+            ))
+          : null}
         <Form.Group className="mb-3" controlId="formGridUsername">
           <Form.Label>Username</Form.Label>
           <Form.Control placeholder={currentUser.username} disabled />
@@ -103,13 +110,6 @@ const UserForm = () => {
         <Button variant="primary" type="submit">
           Submit
         </Button>
-        {formErrors.length
-          ? formErrors.map((e) => (
-              <Alert key="danger" variant="danger">
-                {e}
-              </Alert>
-            ))
-          : null}
       </div>
     </Form>
   );

@@ -3,7 +3,7 @@ import React from "react";
 function Cancel() {
   return (
     <div>
-      <h1>Order has been canceled!</h1>
+      <h1 className="Common">Order has been canceled!</h1>
     </div>
   );
 }

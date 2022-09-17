@@ -92,10 +92,17 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
     let username = req.locals?.user.username;
     const order = await Item.order(username, req.params.id, req.body.amount);
 
-    // get created ngrok web page
+    // get ngrok url
     const ngrokApi = ngrok.getApi();
-    const tunnels = await ngrokApi.listTunnels();
-    const url = tunnels.tunnels[1].public_url;
+    const tunnels = (await ngrokApi.listTunnels()).tunnels;
+
+    // select the https url
+    let url;
+    if (tunnels[0].proto === "https") url = tunnels[0].public_url;
+    else url = tunnels[1].public_url;
+
+    // const url = tunnels.tunnels[0].public_url;
+
     // create stripe session
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -114,26 +121,49 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
   }
 });
 
-// when purchase successfully
+// when purchase successfully, update local data
 // anyone can access, need to update
-router.get("/:id/success", async function (req, res, next) {
-  try {
-    const paidOrder = await Item.paidOrder(req.params.id);
-    const item = await Item.purchase(paidOrder.itemId, paidOrder.amount);
-    return res.json({ item, purchase: true });
-  } catch (e) {
-    return next(e);
-  }
-});
+// router.get("/:id/success", async function (req, res, next) {
+//   try {
+//     const paidOrder = await Item.paidOrder(req.params.id);
+//     const item = await Item.purchase(paidOrder.itemId, paidOrder.amount);
+//     return res.json({ item });
+//   } catch (e) {
+//     return next(e);
+//   }
+// });
 
-// when purchase failed
-router.get("/cancel", async function (req, res, next) {
-  try {
-    return res.json({ purchase: false });
-  } catch (err) {
-    return next(err);
+async function fulfillOrder(session) {
+  console.log("Fulfilling order", session);
+}
+
+router.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res, next) => {
+    const sig = req.headers["stripe-signature"];
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.endpointSecret
+      );
+    } catch (err) {
+      console.log(`⚠️  Webhook signature verification failed.`, err.message);
+      return res.json({ "Webhook-Error": err.message });
+    }
+
+    // Handle the checkout.session.completed event
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+      // Fulfill the purchase...
+      fulfillOrder(session);
+    }
+
+    res.json({ Order: true });
   }
-});
+);
 
 /** PATCH /[id] { fld1, fld2, ... } => { item }
  *

@@ -67,6 +67,12 @@ class ShoppingApi {
     window.location.href = res.url;
   }
 
+  /**Purchase successfully */
+  static async success(id) {
+    const res = await this.request(`items/${id}/success`);
+    return res.item;
+  }
+
   /** Get token for login from username, password. */
 
   static async login(data) {

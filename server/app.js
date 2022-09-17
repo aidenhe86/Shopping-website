@@ -4,8 +4,9 @@ const path = require("path");
 
 const express = require("express");
 const cors = require("cors");
-const { NotFoundError } = require("./expressError");
+const ngrok = require("ngrok");
 
+const { NotFoundError } = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
 const authRoutes = require("./routes/auth");
 const usersRoutes = require("./routes/users");
@@ -18,7 +19,15 @@ const app = express();
 app.use(express.static(path.join(__dirname, "..", "client", "build")));
 
 // prefix all API endpoints with `/api` for CRA
-app.get("/api/ping", function (req, res) {
+// also set up ngrok route
+app.get("/api/ping", async function (req, res) {
+  const ngrokApi = ngrok.getApi();
+  if (!ngrokApi)
+    await ngrok.connect({
+      authtoken: process.env.NGROK_AUTHTOKEN,
+      addr: req.headers["x-forwarded-port"],
+      host_header: req.headers["x-forwarded-port"],
+    });
   res.send("Ok");
 });
 
@@ -32,6 +41,21 @@ app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
 app.use("/categories", categoriesRoutes);
 app.use("/items", itemsRoutes);
+
+app.post("/webhook", (request, response) => {
+  const payload = request.body;
+  const sig = request.headers["stripe-signature"];
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
+  } catch (err) {
+    return response.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  response.status(200);
+});
 
 if (process.env.NODE_ENV !== "dev") {
   // Catch-All for any request that doesn't match a route

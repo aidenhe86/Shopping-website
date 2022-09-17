@@ -7,6 +7,7 @@ import useLocalStorageState from "./hooks/useLocalStorageState";
 import UserContext from "./auth/UserContext";
 import ShoppingApi from "./api";
 import Loading from "./Loading";
+import "./App.css";
 
 function App() {
   useEffect(() => {

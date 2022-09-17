@@ -1,13 +1,14 @@
 import React from "react";
-import { Spinner } from "react-bootstrap";
 
 // Show this component if the page is still loading
 
 function Loading() {
   return (
-    <Spinner animation="border" role="status">
-      <span className="visually-hidden">Loading...</span>
-    </Spinner>
+    <div className="d-flex Common">
+      <div className="spinner-border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+    </div>
   );
 }
 
