@@ -42,21 +42,6 @@ app.use("/users", usersRoutes);
 app.use("/categories", categoriesRoutes);
 app.use("/items", itemsRoutes);
 
-app.post("/webhook", (request, response) => {
-  const payload = request.body;
-  const sig = request.headers["stripe-signature"];
-
-  let event;
-
-  try {
-    event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
-  } catch (err) {
-    return response.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  response.status(200);
-});
-
 if (process.env.NODE_ENV !== "dev") {
   // Catch-All for any request that doesn't match a route
   // falls back to index.html
