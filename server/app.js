@@ -33,8 +33,14 @@ app.get("/api/ping", async function (req, res) {
 
 // allows to indicate any origins (domain, scheme, or port) other than its own from which a browser should permit loading resources
 app.use(cors());
-// parses incoming JSON requests and puts the parsed data in req
-app.use(express.json());
+// parses incoming JSON requests and puts the parsed data in req, and save raw data into req.rawBody
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 app.use(authenticateJWT);
 
 app.use("/auth", authRoutes);

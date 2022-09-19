@@ -1,7 +1,7 @@
 .Alert {
-    position:fixed; 
-    left: 50%; 
-    z-index:9999; 
+    position: fixed;
+    top:5%;
+    left: 45%; 
     border-radius:0px;
-    transform: translate(-50%, 0);
+    z-index: 999;
 }

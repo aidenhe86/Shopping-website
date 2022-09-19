@@ -89,8 +89,6 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
     }
 
     const item = await Item.get(req.params.id);
-    let username = req.locals?.user.username;
-    const order = await Item.order(username, req.params.id, req.body.amount);
 
     // get ngrok url
     const ngrokApi = ngrok.getApi();
@@ -101,8 +99,6 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
     if (tunnels[0].proto === "https") url = tunnels[0].public_url;
     else url = tunnels[1].public_url;
 
-    // const url = tunnels.tunnels[0].public_url;
-
     // create stripe session
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -112,58 +108,48 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
         },
       ],
       mode: "payment",
-      success_url: `${url}/items/${order.id}/success`,
+      success_url: `${url}/items/success`,
       cancel_url: `${url}/items/cancel`,
     });
+    // create order locally
+    let username = req.locals?.user.username;
+    await Item.order(username, req.params.id, req.body.amount, session.id);
     return res.json({ url: session.url });
   } catch (err) {
     return next(err);
   }
 });
 
-// when purchase successfully, update local data
-// anyone can access, need to update
-// router.get("/:id/success", async function (req, res, next) {
-//   try {
-//     const paidOrder = await Item.paidOrder(req.params.id);
-//     const item = await Item.purchase(paidOrder.itemId, paidOrder.amount);
-//     return res.json({ item });
-//   } catch (e) {
-//     return next(e);
-//   }
-// });
-
 async function fulfillOrder(session) {
+  const paidOrder = await Item.paidOrder(session.id);
+  await Item.purchase(paidOrder.itemId, paidOrder.amount);
   console.log("Fulfilling order", session);
 }
 
-router.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  (req, res, next) => {
-    const sig = req.headers["stripe-signature"];
-    let event;
-    try {
-      event = stripe.webhooks.constructEvent(
-        req.body,
-        sig,
-        process.env.endpointSecret
-      );
-    } catch (err) {
-      console.log(`⚠️  Webhook signature verification failed.`, err.message);
-      return res.json({ "Webhook-Error": err.message });
-    }
-
-    // Handle the checkout.session.completed event
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object;
-      // Fulfill the purchase...
-      fulfillOrder(session);
-    }
-
-    res.json({ Order: true });
+// stripe webhook to detect when payment complete
+router.post("/webhook", (req, res, next) => {
+  const sig = req.headers["stripe-signature"];
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.rawBody,
+      sig,
+      process.env.endpointSecret
+    );
+  } catch (err) {
+    console.log(`⚠️  Webhook signature verification failed.`, err.message);
+    return res.json({ "Webhook-Error": err.message });
   }
-);
+
+  // Handle the checkout.session.completed event
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+    // Fulfill the purchase...
+    fulfillOrder(session);
+  }
+
+  res.json({ Order: true });
+});
 
 /** PATCH /[id] { fld1, fld2, ... } => { item }
  *

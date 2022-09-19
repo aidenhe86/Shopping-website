@@ -16,7 +16,7 @@ function ShoppingRoutes({ login, signup }) {
       <Route path="/" element={<Homepage />} />
       <Route path="/login" element={<LoginForm login={login} />} />
       <Route path="/signup" element={<SignupForm signup={signup} />} />
-      <Route path="/items/:id/success" element={<Success />} />
+      <Route path="/items/success" element={<Success />} />
       <Route path="/items/cancel" element={<Cancel />} />
       <Route element={<ProtectRoutes />}>
         <Route path="/profile" element={<UserForm />} />

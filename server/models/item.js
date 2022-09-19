@@ -150,7 +150,7 @@ class Item {
   }
 
   /**Place order */
-  static async order(username, id, amount) {
+  static async order(username, id, amount, sessionId) {
     // precheck for user
     const userRes = await db.query(
       `SELECT username FROM users WHERE username = $1`,
@@ -182,38 +182,41 @@ class Item {
     // create a new order
     const result = await db.query(
       `INSERT INTO user_order
-        (username, item_id, amount) 
-        VALUES($1,$2,$3) 
+        (username, item_id, amount,session_id) 
+        VALUES($1,$2,$3,$4) 
         RETURNING id,
                   username,
                   item_id AS "itemId",
+                  session_id AS "sessionId",
                   amount,
                   payment`,
-      [username, id, amount]
+      [username, id, amount, sessionId]
     );
     const newOrder = result.rows[0];
     return newOrder;
   }
 
   /**Order complete */
-  static async paidOrder(id) {
+  static async paidOrder(session_id) {
     // precheck for order
-    const orderRes = await db.query(`SELECT id FROM user_order WHERE id = $1`, [
-      id,
-    ]);
+    const orderRes = await db.query(
+      `SELECT session_id FROM user_order WHERE session_id = $1`,
+      [session_id]
+    );
     if (!orderRes.rows[0])
-      throw new NotFoundError(`No Order ID: ${username} Found!`);
+      throw new NotFoundError(`No Order ID: ${session_id} Found!`);
 
     const result = await db.query(
       `UPDATE user_order
           SET payment = $1
-          WHERE id = $2
+          WHERE session_id = $2
           RETURNING id,
                     username,
                     item_id AS "itemId",
+                    session_id AS "sessionId",
                     amount,
                     payment`,
-      [true, id]
+      [true, session_id]
     );
     return result.rows[0];
   }

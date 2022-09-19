@@ -31,7 +31,9 @@ const LoginForm = ({ login }) => {
   return (
     <Form onSubmit={handleSubmit}>
       <div className="container col-md-6 offset-md-3 col-lg-4 offset-lg-4">
-        {formErrors.length ? <Alert messages={formErrors} /> : null}
+        {formErrors.length
+          ? formErrors.map((e) => <Alert message={e} />)
+          : null}
         <h2 className="text-center">Log In</h2>
         <Form.Group
           as={Row}
@@ -62,7 +64,6 @@ const LoginForm = ({ login }) => {
               name="password"
               value={formData.password}
               placeholder="Password"
-              autoComplete="on"
               required
             />
           </Col>

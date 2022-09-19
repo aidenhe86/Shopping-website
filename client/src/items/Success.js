@@ -1,18 +1,9 @@
-import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
-import ShoppingApi from "../api";
+import React from "react";
 
 const Success = () => {
-  // first load show all categories
-  const id = useParams().id;
-
-  useEffect(() => {
-    const success = async () => {
-      await ShoppingApi.success(id);
-    };
-    success();
-  }, [id]);
-
+  setTimeout(function () {
+    window.location.replace("/");
+  }, 3000);
   return (
     <div className="Common">
       <h1>Purchase Successfully! Thank you for your purchase!</h1>
