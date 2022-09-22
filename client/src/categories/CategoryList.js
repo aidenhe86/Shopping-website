@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ShoppingApi from "../api";
 import CategoryDetail from "./CategoryDetail";
 import { Container } from "react-bootstrap";
@@ -6,15 +6,25 @@ import { Container } from "react-bootstrap";
 // Show a list of categories
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
-
-  // first load show all categories
+  const isMounted = useRef(false);
   useEffect(() => {
+    isMounted.current = true;
     list();
+    return () => {
+      isMounted.current = false;
+    };
   }, []);
+
+  // // first load show all categories
+  // useEffect(() => {
+  //   list();
+  // }, []);
 
   const list = async () => {
     let categories = await ShoppingApi.getCategories();
-    setCategories(categories);
+    if (isMounted.current) {
+      setCategories(categories);
+    }
   };
 
   return (

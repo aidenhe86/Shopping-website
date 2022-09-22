@@ -5,6 +5,7 @@ CREATE TABLE users (
   last_name TEXT NOT NULL,
   email TEXT NOT NULL
     CHECK (position('@' IN email) > 1),
+  address TEXT NOT NULL,
   is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );
 

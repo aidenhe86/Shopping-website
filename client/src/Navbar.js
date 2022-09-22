@@ -14,6 +14,9 @@ function NavBar({ logout }) {
         <Nav.Link as={Link} to="/profile">
           Profile
         </Nav.Link>
+        <Nav.Link as={Link} to="/shopcart">
+          Shop Cart
+        </Nav.Link>
         <Nav.Link as={Link} to="/" onClick={logout}>
           Sign Out
         </Nav.Link>

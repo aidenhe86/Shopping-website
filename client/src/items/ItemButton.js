@@ -1,21 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Button, OverlayTrigger, Popover } from "react-bootstrap";
 import "./itemButton.css";
 import Alert from "../common/Alert";
+import UserContext from "../auth/UserContext";
+// import ShoppingApi from "../api";
 
-const ItemButton = ({ itemId, price, amount, setAmount, purchase }) => {
-  const [formErrors, setFormErrors] = useState([]);
-  async function handlePurchase() {
-    try {
-      await purchase(itemId, { amount });
-    } catch (err) {
-      setFormErrors(err);
-    }
-  }
+const ItemButton = ({ itemId, price }) => {
+  const [amount, setAmount] = useState(1);
+  const { cart, setCart } = useContext(UserContext);
+  // const [formErrors, setFormErrors] = useState([]);
+  // async function handleOrder() {
+  //   try {
+  //     await ShoppingApi.purchase(itemId, { amount });
+  //   } catch (err) {
+  //     setFormErrors(err);
+  //   }
+  // }
 
   const popover = (
     <Popover id="popover-basic">
-      <Popover.Header as="h3">Purchase</Popover.Header>
+      <Popover.Header as="h3">Order</Popover.Header>
       <Popover.Body className="buttonBody">
         <div className="itemButton">
           <Button
@@ -39,7 +43,14 @@ const ItemButton = ({ itemId, price, amount, setAmount, purchase }) => {
         </div>
         <hr></hr>
         <div>price:{(price * amount).toFixed(2)}</div>
-        <Button onClick={handlePurchase}>Purchase</Button>
+        <Button
+          onClick={() => {
+            cart[itemId] = amount;
+            setCart({ ...cart });
+          }}
+        >
+          Order
+        </Button>
       </Popover.Body>
     </Popover>
   );
@@ -49,7 +60,7 @@ const ItemButton = ({ itemId, price, amount, setAmount, purchase }) => {
       <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
         <Button variant="success">Shop Now</Button>
       </OverlayTrigger>
-      {formErrors.length ? formErrors.map((e) => <Alert message={e} />) : null}
+      {/* {formErrors.length ? formErrors.map((e) => <Alert message={e} />) : null} */}
     </>
   );
 };

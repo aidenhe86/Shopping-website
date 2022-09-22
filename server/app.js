@@ -4,7 +4,6 @@ const path = require("path");
 
 const express = require("express");
 const cors = require("cors");
-const ngrok = require("ngrok");
 
 const { NotFoundError } = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
@@ -19,15 +18,7 @@ const app = express();
 app.use(express.static(path.join(__dirname, "..", "client", "build")));
 
 // prefix all API endpoints with `/api` for CRA
-// also set up ngrok route
 app.get("/api/ping", async function (req, res) {
-  const ngrokApi = ngrok.getApi();
-  if (!ngrokApi)
-    await ngrok.connect({
-      authtoken: process.env.NGROK_AUTHTOKEN,
-      addr: req.headers["x-forwarded-port"],
-      host_header: req.headers["x-forwarded-port"],
-    });
   res.send("Ok");
 });
 

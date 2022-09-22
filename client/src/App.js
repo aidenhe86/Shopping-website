@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import Navbar from "./Navbar";
 import ShoppingRoutes from "./ShoppingRoutes";
 import useLocalStorageState from "./hooks/useLocalStorageState";
+import useGetUser from "./hooks/useGetUser";
 import UserContext from "./auth/UserContext";
 import ShoppingApi from "./api";
 import Loading from "./Loading";
@@ -21,6 +22,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [token, setToken] = useLocalStorageState("userToken");
+  const [cart, setCart] = useLocalStorageState("userShopcart");
+  const getUser = useGetUser();
 
   // get current user when first load and whenever token changed
   useEffect(() => {
@@ -31,8 +34,8 @@ function App() {
         try {
           let { username } = decodeToken(token);
           ShoppingApi.token = token;
-          let currentUser = await ShoppingApi.getCurrentUser(username);
-          setCurrentUser(currentUser);
+          let res = await getUser(username);
+          setCurrentUser(res.user);
         } catch (e) {
           setCurrentUser(null);
         }
@@ -40,6 +43,7 @@ function App() {
       setIsLoading(false);
     };
     getCurrentUser();
+    if (cart === null) setCart({});
   }, [token]);
 
   // handle login
@@ -79,7 +83,9 @@ function App() {
 
   return (
     <BrowserRouter>
-      <UserContext.Provider value={{ currentUser, setCurrentUser, purchase }}>
+      <UserContext.Provider
+        value={{ currentUser, setCurrentUser, purchase, cart, setCart }}
+      >
         <Navbar logout={logout} />
         <div className="App">
           <ShoppingRoutes login={login} signup={signup} />

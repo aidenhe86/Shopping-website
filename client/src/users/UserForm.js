@@ -17,6 +17,7 @@ const UserForm = () => {
         firstName: currentUser.firstName,
         lastName: currentUser.lastName,
         email: currentUser.email,
+        address: currentUser.address,
         password: "",
       });
       setIsLoading(false);
@@ -91,6 +92,16 @@ const UserForm = () => {
             name="email"
             value={formData.email}
             placeholder="email"
+            required
+          />
+        </Form.Group>
+        <Form.Group className="mb-3" controlId="formGridAddress">
+          <Form.Label>Address</Form.Label>
+          <Form.Control
+            onChange={handleChange}
+            name="address"
+            value={formData.address}
+            placeholder="Address"
             required
           />
         </Form.Group>

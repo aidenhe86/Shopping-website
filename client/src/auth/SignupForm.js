@@ -116,6 +116,18 @@ const SignupForm = ({ signup }) => {
             />
           </Col>
         </Form.Group>
+        <Form.Group as={Row} className="mb-3" controlId="formHorizontalAddress">
+          <Col>
+            <Form.Control
+              type="text"
+              onChange={handleChange}
+              name="address"
+              value={formData.address}
+              placeholder="Address"
+              required
+            />
+          </Col>
+        </Form.Group>
 
         <div className="d-grid gap-2">
           <Button variant="primary" size="lg" type="submit">

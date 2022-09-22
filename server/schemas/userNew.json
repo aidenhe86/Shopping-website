@@ -29,6 +29,11 @@
       "maxLength": 60,
       "format": "email"
     },
+    "address": {
+      "type": "string",
+      "minLength": 6,
+      "maxLength": 60
+    },
     "isAdmin": {
       "type": "boolean"
     }
@@ -39,6 +44,7 @@
     "firstName",
     "lastName",
     "password",
+    "address",
     "email"
   ]
 }

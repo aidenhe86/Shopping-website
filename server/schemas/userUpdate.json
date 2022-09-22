@@ -18,6 +18,11 @@
       "minLength": 1,
       "maxLength": 30
     },
+    "address": {
+      "type": "string",
+      "minLength": 6,
+      "maxLength": 60
+    },
     "email": {
       "type": "string",
       "minLength": 6,

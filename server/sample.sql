@@ -5,7 +5,7 @@
 	"quantity":100,
 	"price":"12.99",
 	"description":"Delicious Crisps Potato Chips"
-},
+}
 {
   "categories":["soda"],
 	"title":"Pepsi",

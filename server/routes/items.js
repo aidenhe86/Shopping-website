@@ -5,7 +5,6 @@
 const jsonschema = require("jsonschema");
 const express = require("express");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
-const ngrok = require("ngrok");
 
 const { BadRequestError } = require("../expressError");
 const { ensureAdmin, ensureLoggedIn } = require("../middleware/auth");
@@ -90,15 +89,6 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
 
     const item = await Item.get(req.params.id);
 
-    // get ngrok url
-    const ngrokApi = ngrok.getApi();
-    const tunnels = (await ngrokApi.listTunnels()).tunnels;
-
-    // select the https url
-    let url;
-    if (tunnels[0].proto === "https") url = tunnels[0].public_url;
-    else url = tunnels[1].public_url;
-
     // create stripe session
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -108,8 +98,8 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
         },
       ],
       mode: "payment",
-      success_url: `${url}/items/success`,
-      cancel_url: `${url}/items/cancel`,
+      success_url: `${process.env.HOST_PORT}/items/success`,
+      cancel_url: `${process.env.HOST_PORT}/items/cancel`,
     });
     // create order locally
     let username = req.locals?.user.username;
@@ -123,7 +113,6 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
 async function fulfillOrder(session) {
   const paidOrder = await Item.paidOrder(session.id);
   await Item.purchase(paidOrder.itemId, paidOrder.amount);
-  console.log("Fulfilling order", session);
 }
 
 // stripe webhook to detect when payment complete
