@@ -1,24 +1,16 @@
-import React, { useState } from "react";
-import { Card, Col, Row } from "react-bootstrap";
-import ItemButton from "./ItemButton";
+import React, { useContext } from "react";
+import { Row } from "react-bootstrap";
+import ItemCard from "./ItemCard";
+import UserContext from "../auth/UserContext";
 
 // Show a list of items
 const ItemList = ({ items }) => {
+  const { cart, setCart } = useContext(UserContext);
+
   return (
     <Row className="ItemList" xs={"auto"}>
       {items.map((i) => (
-        <Col key={i.title}>
-          <Card style={{ width: "14rem" }}>
-            <Card.Img variant="top" src={i.imageUrl} />
-            <Card.Body>
-              <Card.Title>{i.title}</Card.Title>
-              <Col>Quantity: {i.quantity}</Col>
-              <Col>Price: ${i.price}</Col>
-              <Col>{i.description}</Col>
-              <ItemButton itemId={i.id} price={i.price} />
-            </Card.Body>
-          </Card>
-        </Col>
+        <ItemCard i={i} cart={cart} setCart={setCart} key={i.id} />
       ))}
     </Row>
   );

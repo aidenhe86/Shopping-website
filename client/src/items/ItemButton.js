@@ -1,13 +1,11 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { Button, OverlayTrigger, Popover } from "react-bootstrap";
 import "./itemButton.css";
-import Alert from "../common/Alert";
-import UserContext from "../auth/UserContext";
+// import Alert from "../common/Alert";
 // import ShoppingApi from "../api";
 
-const ItemButton = ({ itemId, price }) => {
+const ItemButton = ({ item, price, handleCart }) => {
   const [amount, setAmount] = useState(1);
-  const { cart, setCart } = useContext(UserContext);
   // const [formErrors, setFormErrors] = useState([]);
   // async function handleOrder() {
   //   try {
@@ -44,9 +42,9 @@ const ItemButton = ({ itemId, price }) => {
         <hr></hr>
         <div>price:{(price * amount).toFixed(2)}</div>
         <Button
-          onClick={() => {
-            cart[itemId] = amount;
-            setCart({ ...cart });
+          onClick={(e) => {
+            e.preventDefault();
+            handleCart(item, amount);
           }}
         >
           Order

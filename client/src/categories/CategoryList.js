@@ -7,6 +7,7 @@ import { Container } from "react-bootstrap";
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
   const isMounted = useRef(false);
+  // first load show all categories
   useEffect(() => {
     isMounted.current = true;
     list();
@@ -14,11 +15,6 @@ const CategoryList = () => {
       isMounted.current = false;
     };
   }, []);
-
-  // // first load show all categories
-  // useEffect(() => {
-  //   list();
-  // }, []);
 
   const list = async () => {
     let categories = await ShoppingApi.getCategories();
