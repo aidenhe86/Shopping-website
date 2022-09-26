@@ -150,7 +150,7 @@ class Item {
   }
 
   /**Place order */
-  static async order(username, id, amount, sessionId) {
+  static async order(username, priceId, amount, sessionId) {
     // precheck for user
     const userRes = await db.query(
       `SELECT username FROM users WHERE username = $1`,
@@ -166,11 +166,14 @@ class Item {
 
     // precheck for item
     const itemRes = await db.query(
-      `SELECT id,title,quantity FROM items WHERE id = $1`,
-      [id]
+      `SELECT price_id as "priceId",
+              title,
+              quantity 
+      FROM items WHERE price_id = $1`,
+      [priceId]
     );
     const item = itemRes.rows[0];
-    if (!item) throw new NotFoundError(`No Item ID:${id} found!`);
+    if (!item) throw new NotFoundError(`No Item ID:${priceId} found!`);
 
     // check if have enough stack available
     let remain = item.quantity - amount;
@@ -182,15 +185,15 @@ class Item {
     // create a new order
     const result = await db.query(
       `INSERT INTO user_order
-        (username, item_id, amount,session_id) 
+        (username, price_id, amount,session_id) 
         VALUES($1,$2,$3,$4) 
         RETURNING id,
                   username,
-                  item_id AS "itemId",
+                  price_id AS "priceId",
                   session_id AS "sessionId",
                   amount,
                   payment`,
-      [username, id, amount, sessionId]
+      [username, priceId, amount, sessionId]
     );
     const newOrder = result.rows[0];
     return newOrder;
@@ -212,22 +215,17 @@ class Item {
           WHERE session_id = $2
           RETURNING id,
                     username,
-                    item_id AS "itemId",
+                    price_id AS "priceId",
                     session_id AS "sessionId",
                     amount,
                     payment`,
       [true, session_id]
     );
-    return result.rows[0];
+    return result.rows;
   }
 
-  /**Purchase item
-   * accpet {id,amount}
-   *
-   * Returns {categories,id,title, image_url,quantity,price,description}
-   * where categories = [{category},...]
-   */
-  static async purchase(id, amount) {
+  /**Purchase item*/
+  static async purchase(priceId, amount) {
     // precheck for input
     if (!Number.isInteger(amount))
       throw new BadRequestError(
@@ -237,11 +235,11 @@ class Item {
     // get item
     const itemRes = await db.query(
       `
-      SELECT title, price, quantity FROM items WHERE id = $1`,
-      [id]
+      SELECT title, price, quantity FROM items WHERE price_id = $1`,
+      [priceId]
     );
     const item = itemRes.rows[0];
-    if (!item) throw new NotFoundError(`No Item ID:${id} found!`);
+    if (!item) throw new NotFoundError(`No Item ID:${priceId} found!`);
 
     // check if have enough stack available
     let remain = item.quantity - amount;
@@ -251,20 +249,12 @@ class Item {
       );
 
     // update item quantity
-    const result = await db.query(
+    await db.query(
       `UPDATE items 
         SET quantity = $1 
-        WHERE id = $2 
-        RETURNING 
-          id,
-          title, 
-          image_url AS "imageUrl",
-          quantity,
-          price,
-          description`,
-      [remain, id]
+        WHERE price_id = $2`,
+      [remain, priceId]
     );
-    return result.rows[0];
   }
 
   /** Update item data

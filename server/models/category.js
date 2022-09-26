@@ -64,7 +64,8 @@ class Category {
               i.image_url AS "imageUrl", 
               i.quantity, 
               i.price,
-              i.description
+              i.description,
+              i.price_id as "priceId"
         FROM 
             item_category ic
             JOIN items i ON ic.item_id = i.id

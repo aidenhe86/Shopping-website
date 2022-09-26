@@ -79,31 +79,38 @@ router.get("/:id", async function (req, res, next) {
  * Authorization required: login
  */
 
-router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
+router.post("/purchase", ensureLoggedIn, async function (req, res, next) {
   try {
-    const validator = jsonschema.validate(req.body, itemPurchaseSchema);
-    if (!validator.valid) {
-      const errs = validator.errors.map((e) => e.stack);
-      throw new BadRequestError(errs);
+    const line_items = [];
+
+    for (let id in req.body) {
+      line_items.push({
+        price: req.body[id].priceId,
+        quantity: req.body[id].amount,
+      });
     }
 
-    const item = await Item.get(req.params.id);
+    // const validator = jsonschema.validate(req.body, itemPurchaseSchema);
+    // if (!validator.valid) {
+    //   const errs = validator.errors.map((e) => e.stack);
+    //   throw new BadRequestError(errs);
+    // }
 
     // create stripe session
     const session = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price: item.priceId,
-          quantity: req.body.amount,
-        },
-      ],
+      line_items,
       mode: "payment",
       success_url: `${process.env.HOST_PORT}/items/success`,
       cancel_url: `${process.env.HOST_PORT}/items/cancel`,
     });
     // create order locally
     let username = req.locals?.user.username;
-    await Item.order(username, req.params.id, req.body.amount, session.id);
+    Promise.all(
+      line_items.map(async (i) => {
+        await Item.order(username, i.price, i.quantity, session.id);
+      })
+    );
+
     return res.json({ url: session.url });
   } catch (err) {
     return next(err);
@@ -112,7 +119,11 @@ router.post("/:id/purchase", ensureLoggedIn, async function (req, res, next) {
 
 async function fulfillOrder(session) {
   const paidOrder = await Item.paidOrder(session.id);
-  await Item.purchase(paidOrder.itemId, paidOrder.amount);
+  Promise.all(
+    paidOrder.map(async (order) => {
+      await Item.purchase(order.priceId, order.amount);
+    })
+  );
 }
 
 // stripe webhook to detect when payment complete

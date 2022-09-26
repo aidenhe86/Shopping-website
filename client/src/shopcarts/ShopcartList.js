@@ -2,9 +2,11 @@ import React, { useContext } from "react";
 import { Button, Container } from "react-bootstrap";
 import UserContext from "../auth/UserContext";
 import ShopcartCard from "./ShopcartCard";
+import usePurchase from "../hooks/usePurchase";
 
 const ShopcartList = () => {
   const { cart, setCart } = useContext(UserContext);
+  const purchase = usePurchase();
 
   if (Object.keys(cart).length === 0) {
     return (
@@ -26,7 +28,7 @@ const ShopcartList = () => {
       ))}
       <Button
         onClick={() => {
-          console.log("click");
+          purchase(cart);
         }}
       >
         Purchase
