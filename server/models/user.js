@@ -16,7 +16,7 @@ const { BCRYPT_WORK_FACTOR } = require("../config.js");
 class User {
   /** authenticate user with username, password.
    *
-   * Returns { username, first_name, last_name, email, is_admin }
+   * Returns { username, first_name, last_name, email, address, is_admin }
    *
    * Throws UnauthorizedError is user not found or wrong password.
    **/
@@ -52,7 +52,7 @@ class User {
 
   /** Register user with data.
    *
-   * Returns { username, firstName, lastName, email, isAdmin }
+   * Returns { username, firstName, lastName, email, address, isAdmin }
    *
    * Throws BadRequestError on duplicates.
    **/
@@ -100,7 +100,7 @@ class User {
 
   /** Find all users.
    *
-   * Returns [{ username, first_name, last_name, email, is_admin }, ...]
+   * Returns [{ username, first_name, last_name, email, address, is_admin }, ...]
    **/
 
   static async findAll() {
@@ -120,8 +120,7 @@ class User {
 
   /** Given a username, return data about user.
    *
-   * Returns { username, first_name, last_name, is_admin}
-   *   where jobs is { id, title, company_handle, company_name, state }
+   * Returns { username, first_name, last_name, address, is_admin}
    *
    * Throws NotFoundError if user not found.
    **/
@@ -157,10 +156,6 @@ class User {
    * Returns { username, firstName, lastName, email, isAdmin }
    *
    * Throws NotFoundError if not found.
-   *
-   * WARNING: this function can set a new password or make a user an admin.
-   * Callers of this function must be certain they have validated inputs to this
-   * or a serious security risks are opened.
    */
 
   static async update(username, data) {
@@ -189,44 +184,6 @@ class User {
     if (!user) throw new NotFoundError(`No user: ${username}`);
 
     delete user.password;
-    return user;
-  }
-
-  /** create stripe customer id when customer first time purchase.
-   *  Only when stripe customer id is empty.
-   */
-  static async newCustomer(username, { stripe_id }) {
-    // check if username exist
-    const duplicateCheck1 = await db.query(
-      `SELECT username
-           FROM users
-           WHERE username = $1`,
-      [username]
-    );
-
-    if (!duplicateCheck1.rows[0]) {
-      throw new NotFoundError(`No user: ${username}`);
-    }
-    // check if user have customer id
-    const duplicateCheck2 = await db.query(
-      `SELECT stripe_id AS "stripeId"
-           FROM users
-           WHERE username = $1`,
-      [username]
-    );
-
-    if (duplicateCheck2.rows[0].stripeId) {
-      throw new BadRequestError(`Customer ID already created!`);
-    }
-
-    const result = await db.query(
-      `UPDATE users
-        SET stripe_id = $1
-        WHERE username = $2
-        RETURNING username, stripe_id AS "stripeId"`,
-      [stripe_id, username]
-    );
-    const user = result.rows[0];
     return user;
   }
 

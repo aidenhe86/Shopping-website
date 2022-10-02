@@ -8,7 +8,8 @@ const stripe = require("stripe")(process.env.STRIPE_KEY);
 class Item {
   /**Create a new item and return new item data
    * accpet {[category,...],title, image_url,quantity,price,description}
-   * return {[{category},...],id,title, image_url,quantity,price,description}
+   * return {[{category},...],id,title, image_url,quantity,price,
+   *          productId, priceId, description}
    */
   static async create({
     categories,
@@ -110,7 +111,8 @@ class Item {
   }
 
   /** Given a item id, return that item data
-   * Returns {categories, title,image_url,quantity, price, description}
+   * Returns {categories, title,image_url,quantity, price, priceId, productId,
+   *          description}
    * where categories = [{category},...]
    * Throws NotFoundError if not found.
    */
@@ -149,7 +151,9 @@ class Item {
     return item;
   }
 
-  /**Place order */
+  /**Place order
+   * accept username, priceId, amount and sessionId
+   */
   static async order(username, priceId, amount, sessionId) {
     // precheck for user
     const userRes = await db.query(
@@ -183,23 +187,17 @@ class Item {
       );
 
     // create a new order
-    const result = await db.query(
+    await db.query(
       `INSERT INTO user_order
         (username, price_id, amount,session_id) 
-        VALUES($1,$2,$3,$4) 
-        RETURNING id,
-                  username,
-                  price_id AS "priceId",
-                  session_id AS "sessionId",
-                  amount,
-                  payment`,
+        VALUES($1,$2,$3,$4) `,
       [username, priceId, amount, sessionId]
     );
-    const newOrder = result.rows[0];
-    return newOrder;
   }
 
-  /**Order complete */
+  /**Order complete
+   * return [{id,username,priceId,sessionId,amount,payment},...]
+   */
   static async paidOrder(session_id) {
     // precheck for order
     const orderRes = await db.query(
@@ -209,6 +207,7 @@ class Item {
     if (!orderRes.rows[0])
       throw new NotFoundError(`No Order ID: ${session_id} Found!`);
 
+    // update payment as true
     const result = await db.query(
       `UPDATE user_order
           SET payment = $1
@@ -261,7 +260,8 @@ class Item {
    * accept {id,data}
    * where data is the item data will be update and categories
    *
-   * Returns {categories,id,title, image_url,quantity,price,description}
+   * Returns {categories,id,title, image_url,quantity,price,
+   *          productId, priceId, description}
    * where categories = [{category},...]
    */
   static async update(id, data) {

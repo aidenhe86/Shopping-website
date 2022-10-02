@@ -20,7 +20,6 @@ afterAll(commonAfterAll);
 describe("create", function () {
   const newCategory = {
     category: "testCategory",
-    imageUrl: "http://new.img",
   };
 
   test("works", async function () {
@@ -28,7 +27,7 @@ describe("create", function () {
     expect(category).toEqual(newCategory);
 
     const result = await db.query(
-      `SELECT id, category, image_url AS "imageUrl"
+      `SELECT id, category
            FROM categories
            WHERE category = 'testCategory'`
     );
@@ -36,7 +35,6 @@ describe("create", function () {
       {
         id: expect.any(Number),
         category: "testCategory",
-        imageUrl: "http://new.img",
       },
     ]);
   });
@@ -60,15 +58,12 @@ describe("findAll", function () {
     expect(categories).toEqual([
       {
         category: "category1",
-        imageUrl: "http://c1.img",
       },
       {
         category: "category2",
-        imageUrl: "http://c2.img",
       },
       {
         category: "category3",
-        imageUrl: "http://c3.img",
       },
     ]);
   });
@@ -81,7 +76,6 @@ describe("get", function () {
     let category = await Category.get("category2");
     expect(category).toEqual({
       category: "category2",
-      imageUrl: "http://c2.img",
       items: [
         {
           id: expect.any(Number),
@@ -89,6 +83,7 @@ describe("get", function () {
           imageUrl: "http://i1.img",
           quantity: 100,
           price: "3.00",
+          priceId: "priceid1",
           description: "test item1",
         },
         {
@@ -97,6 +92,7 @@ describe("get", function () {
           imageUrl: "http://i2.img",
           quantity: 200,
           price: "7.00",
+          priceId: "priceid2",
           description: "test item2",
         },
       ],
@@ -118,7 +114,6 @@ describe("get", function () {
 describe("update", function () {
   const updateData = {
     category: "New",
-    imageUrl: "http://new.img",
   };
 
   test("works", async function () {
@@ -129,8 +124,7 @@ describe("update", function () {
 
     const result = await db.query(
       `SELECT id,
-              category,
-              image_url as "imageUrl" 
+              category
       FROM categories 
               WHERE category = 'New'`
     );

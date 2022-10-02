@@ -1,19 +1,9 @@
 import React, { useState } from "react";
 import { Button, OverlayTrigger, Popover } from "react-bootstrap";
 import "./itemButton.css";
-// import Alert from "../common/Alert";
-// import ShoppingApi from "../api";
 
 const ItemButton = ({ item, price, handleCart }) => {
   const [amount, setAmount] = useState(1);
-  // const [formErrors, setFormErrors] = useState([]);
-  // async function handleOrder() {
-  //   try {
-  //     await ShoppingApi.purchase(itemId, { amount });
-  //   } catch (err) {
-  //     setFormErrors(err);
-  //   }
-  // }
 
   const popover = (
     <Popover id="popover-basic">
@@ -58,7 +48,6 @@ const ItemButton = ({ item, price, handleCart }) => {
       <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
         <Button variant="success">Shop Now</Button>
       </OverlayTrigger>
-      {/* {formErrors.length ? formErrors.map((e) => <Alert message={e} />) : null} */}
     </>
   );
 };

@@ -90,33 +90,3 @@ class ShoppingApi {
 }
 
 export default ShoppingApi;
-
-// export function useSaveProfile() {
-//   return useCallback(
-//     ({ username, data }) => shoppingAPI.saveProfile(username, data),
-//     []
-//   );
-// }
-
-// const saveProfile = useSaveProfile();
-
-// saveProfile({
-//   username: "johndoe",
-//   data: {
-//     something: 1,
-//     foo: "bar",
-//   },
-// });
-
-// useItems.js
-// export function useItems() {
-//   return () => shoppingAPI.getItems()
-// }
-
-// // in a react component
-// const getItems = useItems()
-// const [items, setItems] = useState([])
-
-// useEffect(() => {
-//   getItems().then(items => setItems)
-// }, [])

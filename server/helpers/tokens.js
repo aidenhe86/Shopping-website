@@ -17,13 +17,4 @@ function createToken(user) {
   return jwt.sign(payload, SECRET_KEY);
 }
 
-function createPaymentToken(id) {
-  let payload = {
-    username: user.username,
-    isAdmin: user.isAdmin || false,
-  };
-
-  return jwt.sign(payload, SECRET_KEY);
-}
-
-module.exports = { createToken, createPaymentToken };
+module.exports = { createToken };

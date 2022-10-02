@@ -11,8 +11,7 @@ CREATE TABLE users (
 
 CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
-    category TEXT UNIQUE NOT NULL,
-    image_url TEXT
+  category TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE items(

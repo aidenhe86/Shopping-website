@@ -9,13 +9,14 @@ async function commonBeforeAll() {
   await db.query("DELETE FROM categories");
   await db.query("DELETE FROM users");
   await db.query("DELETE FROM item_category");
+  await db.query("DELETE FROM user_order");
 
   // insert category
   let catRes = await db.query(`
-    INSERT INTO categories(category, image_url)
-    VALUES ('category1', 'http://c1.img'),
-           ('category2', 'http://c2.img'),
-           ('category3', 'http://c3.img')
+    INSERT INTO categories(category)
+    VALUES ('category1'),
+           ('category2'),
+           ('category3')
     RETURNING id`);
 
   let catID = catRes.rows;
@@ -28,9 +29,9 @@ async function commonBeforeAll() {
                       first_name,
                       last_name,
                       email,
-                      stripe_id)
-    VALUES ('u1', $1, 'U1F', 'U1L', 'u1@email.com','customerID1'),
-           ('u2', $2, 'U2F', 'U2L', 'u2@email.com','')
+                      address)
+    VALUES ('u1', $1, 'U1F', 'U1L', 'u1@email.com','address1'),
+           ('u2', $2, 'U2F', 'U2L', 'u2@email.com','address2')
     RETURNING username`,
     [
       await bcrypt.hash("password1", BCRYPT_WORK_FACTOR),
@@ -45,9 +46,11 @@ async function commonBeforeAll() {
                       image_url,
                       quantity,
                       price,
-                      description)
-    VALUES ('item1','http://i1.img',100,3,'test item1'),
-          ('item2','http://i2.img',200,7,'test item2')
+                      description,
+                      product_id,
+                      price_id)
+    VALUES ('item1','http://i1.img',100,3,'test item1','productid1','priceid1'),
+          ('item2','http://i2.img',200,7,'test item2','productid2','priceid2')
     RETURNING id`
   );
 
@@ -60,6 +63,13 @@ async function commonBeforeAll() {
       VALUES(${catID[0].id},${testItemIds[0]}),
             (${catID[1].id},${testItemIds[1]}),
             (${catID[1].id},${testItemIds[0]})`);
+
+  // insert user order
+  await db.query(`
+      INSERT INTO user_order(username,price_id,session_id,amount)
+      VALUES('u1','priceid1','sessionid1',10),
+            ('u2','priceid2','sessionid2',8)
+  `);
 }
 
 async function commonBeforeEach() {

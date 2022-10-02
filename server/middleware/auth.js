@@ -70,19 +70,9 @@ function ensureAdminOrCorrectUser(req, res, next) {
   }
 }
 
-function ensurePayment(req, res, next) {
-  try {
-    if (!req.headers?.payment) throw new UnauthorizedError();
-    return next();
-  } catch (err) {
-    return next(err);
-  }
-}
-
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
   ensureAdminOrCorrectUser,
   ensureAdmin,
-  ensurePayment,
 };

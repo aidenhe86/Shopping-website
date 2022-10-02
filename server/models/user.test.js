@@ -29,6 +29,7 @@ describe("authenticate", function () {
       firstName: "U1F",
       lastName: "U1L",
       email: "u1@email.com",
+      address: "address1",
       isAdmin: false,
     });
   });
@@ -60,6 +61,7 @@ describe("register", function () {
     firstName: "Test",
     lastName: "Tester",
     email: "test@test.com",
+    address: "testaddress",
     isAdmin: false,
   };
 
@@ -116,6 +118,7 @@ describe("findAll", function () {
         firstName: "U1F",
         lastName: "U1L",
         email: "u1@email.com",
+        address: "address1",
         isAdmin: false,
       },
       {
@@ -123,6 +126,7 @@ describe("findAll", function () {
         firstName: "U2F",
         lastName: "U2L",
         email: "u2@email.com",
+        address: "address2",
         isAdmin: false,
       },
     ]);
@@ -139,6 +143,7 @@ describe("get", function () {
       firstName: "U1F",
       lastName: "U1L",
       email: "u1@email.com",
+      address: "address1",
       isAdmin: false,
     });
   });
@@ -224,36 +229,6 @@ describe("remove", function () {
       fail();
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
-    }
-  });
-});
-
-/************************************** create customer id */
-
-describe("Create new Customer ID", function () {
-  test("works", async function () {
-    await User.newCustomer("u2", { stripe_id: "testCustomerID" });
-    const res = await db.query(
-      `SELECT * FROM users WHERE username = 'u2' AND stripe_id = 'testCustomerID'`
-    );
-    expect(res.rows.length).toEqual(1);
-  });
-
-  test("fails:not exist username", async function () {
-    try {
-      await User.newCustomer("test", "testCustomerID");
-      fail();
-    } catch (err) {
-      expect(err instanceof NotFoundError).toBeTruthy();
-    }
-  });
-
-  test("fails:customer id already created", async function () {
-    try {
-      await User.newCustomer("u1", { stripe_id: "testCustomerID" });
-      fail();
-    } catch (err) {
-      expect(err instanceof BadRequestError).toBeTruthy();
     }
   });
 });

@@ -34,6 +34,8 @@ describe("create items", function () {
       price: "4.56",
       description: "New Item",
       id: expect.any(Number),
+      productId: expect.any(String),
+      priceId: expect.any(String),
       categories: [{ category: "category1" }, { category: "category3" }],
     });
 
@@ -115,6 +117,8 @@ describe("get", function () {
       imageUrl: "http://i1.img",
       quantity: 100,
       price: "3.00",
+      productId: "productid1",
+      priceId: "priceid1",
       description: "test item1",
       categories: [{ category: "category1" }, { category: "category2" }],
     });
@@ -133,13 +137,16 @@ describe("get", function () {
 // purchase an item
 describe("purchase", function () {
   test("works", async function () {
-    let item = await Item.purchase(testItemIds[0], { amount: 10 });
-    expect(item).toEqual(expect.any(String));
+    await Item.purchase("priceid1", 10);
+    const res = await db.query(
+      `SELECT quantity FROM items WHERE price_id = 'priceid1'`
+    );
+    expect(res.rows[0].quantity).toEqual(90);
   });
 
   test("fail: not valid id", async function () {
     try {
-      await Item.purchase(0, { amount: 10 });
+      await Item.purchase("notexist", 10);
       fail();
     } catch (e) {
       expect(e instanceof NotFoundError).toBeTruthy();
@@ -148,7 +155,7 @@ describe("purchase", function () {
 
   test("fail: exceed quantity", async function () {
     try {
-      await Item.purchase(testItemIds[0], { amount: 200 });
+      await Item.purchase("priceid1", 200);
       fail();
     } catch (e) {
       expect(e instanceof BadRequestError).toBeTruthy();
@@ -157,7 +164,7 @@ describe("purchase", function () {
 
   test("fail: invalid data", async function () {
     try {
-      await Item.purchase(testItemIds[0], { amount: "not a number" });
+      await Item.purchase("priceid1", "not a number");
       fail();
     } catch (e) {
       expect(e instanceof BadRequestError).toBeTruthy();
