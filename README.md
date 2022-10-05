@@ -7,9 +7,14 @@
 <br>
 This website is a sample shopping website that user can register on this website, view the products and purchase it online.
 Please use the following account and test card number from stripe to play around the website!
+
 Username: testuser
+
 Password: password
-Stripe test card number: 4242424242424242  CVC: Any 3 digits DATE: Any future date
+
+Stripe test card number: 4242424242424242  
+CVC: Any 3 digits
+DATE: Any future date
 
 #### User Flow
 ***
