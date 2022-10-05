@@ -11,7 +11,6 @@ const { ensureAdmin, ensureLoggedIn } = require("../middleware/auth");
 const Item = require("../models/item");
 
 const itemNewSchema = require("../schemas/itemNew.json");
-const itemPurchaseSchema = require("../schemas/itemPurchase.json");
 const itemUpdateSchema = require("../schemas/itemUpdate.json");
 
 const router = new express.Router();
@@ -89,12 +88,6 @@ router.post("/purchase", ensureLoggedIn, async function (req, res, next) {
         quantity: req.body[id].amount,
       });
     }
-
-    // const validator = jsonschema.validate(req.body, itemPurchaseSchema);
-    // if (!validator.valid) {
-    //   const errs = validator.errors.map((e) => e.stack);
-    //   throw new BadRequestError(errs);
-    // }
 
     // create stripe session
     const session = await stripe.checkout.sessions.create({

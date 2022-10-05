@@ -39,4 +39,4 @@ CREATE TABLE user_order(
   session_id TEXT NOT NULL,
   amount INTEGER NOT NULL,
   payment BOOLEAN NOT NULL DEFAULT FALSE
-)
+);
