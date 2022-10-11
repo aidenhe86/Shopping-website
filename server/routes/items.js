@@ -83,6 +83,10 @@ router.post("/purchase", ensureLoggedIn, async function (req, res, next) {
     const line_items = [];
 
     for (let id in req.body) {
+      if (req.body[id].amount > req.body[id].quantity)
+        throw new BadRequestError(
+          `Purchase Item ${req.body[id].title} amount ${req.body[id].amount} exceed current storage ${req.body[id].quantity}! `
+        );
       line_items.push({
         price: req.body[id].priceId,
         quantity: req.body[id].amount,
