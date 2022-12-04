@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
-import ShoppingApi from "../api";
 import ItemList from "../items/ItemList";
+import useGetCategory from "../hooks/useGetCategory";
 
 /* Renders a category detail. */
 const CategoryDetail = ({ cat }) => {
   const [items, setItem] = useState([]);
+  const getCategory = useGetCategory();
 
   // first load show the category
   useEffect(() => {
     // get a list of item base on current category
     const list = async () => {
-      let category = await ShoppingApi.getCategory(cat);
+      let category = await getCategory(cat);
       setItem(category.items);
     };
     list();
-  }, [cat]);
+  }, [cat, getCategory]);
 
   // upper case the first letter
   function titleCase(string) {

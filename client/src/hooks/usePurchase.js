@@ -1,8 +1,13 @@
 import request from "../utils/request";
+import Toast from "../common/Toast";
 
 export default function usePurchase() {
   return async (data) => {
-    let res = await request(`items/purchase`, data, "post");
-    window.location.href = res.url;
+    try {
+      let res = await request(`items/purchase`, data, "post");
+      window.location.href = res.url;
+    } catch (e) {
+      Toast("Process cannot be done, please check again!", "error");
+    }
   };
 }

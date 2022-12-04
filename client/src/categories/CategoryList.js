@@ -1,27 +1,20 @@
-import React, { useState, useEffect, useRef } from "react";
-import ShoppingApi from "../api";
-import CategoryDetail from "./CategoryDetail";
+import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
+import CategoryDetail from "./CategoryDetail";
+import useGetCategories from "../hooks/useGetCategories";
 
 // Show a list of categories
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
-  const isMounted = useRef(false);
+  const getCategories = useGetCategories();
   // first load show all categories
   useEffect(() => {
-    isMounted.current = true;
-    list();
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  const list = async () => {
-    let categories = await ShoppingApi.getCategories();
-    if (isMounted.current) {
+    const list = async () => {
+      let categories = await getCategories();
       setCategories(categories);
-    }
-  };
+    };
+    list();
+  }, [getCategories]);
 
   return (
     <Container>

@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Col, Form, Row } from "react-bootstrap";
 import UserContext from "../auth/UserContext";
-import ShoppingApi from "../api";
+import useUpdateUser from "../hooks/useUpdateUser";
 import Loading from "../Loading";
 import Toast from "../common/Toast";
 
@@ -12,6 +12,7 @@ const UserForm = () => {
   const [formData, setFormData] = useState({});
   const [formErrors, setFormErrors] = useState([]);
   const navigate = useNavigate();
+  const updateUser = useUpdateUser();
   useEffect(() => {
     if (currentUser) {
       setFormData({
@@ -37,10 +38,7 @@ const UserForm = () => {
     e.preventDefault();
     let updatedUser;
     try {
-      updatedUser = await ShoppingApi.updateCurrentUser(
-        currentUser.username,
-        formData
-      );
+      updatedUser = await updateUser(currentUser.username, formData);
     } catch (e) {
       setFormErrors(e);
       return;

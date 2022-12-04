@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, Col, Row, Button } from "react-bootstrap";
+import Toast from "../common/Toast";
 import "./ShopcartCard.css";
 
 const ShopcartCard = ({ item, cart, setCart }) => {
@@ -29,6 +30,7 @@ const ShopcartCard = ({ item, cart, setCart }) => {
             variant="secondary"
             onClick={() => {
               delete cart[item.id];
+              Toast(`${item.amount} ${item.title} remove from Shop Cart!`);
               setCart({ ...cart });
             }}
           >

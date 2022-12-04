@@ -6,27 +6,24 @@ import "react-toastify/dist/ReactToastify.css";
 
 import Navbar from "./Navbar";
 import ShoppingRoutes from "./ShoppingRoutes";
+import UserContext from "./auth/UserContext";
+import Loading from "./Loading";
+import Toast from "./common/Toast";
+
 import useLocalStorageState from "./hooks/useLocalStorageState";
 import useGetUser from "./hooks/useGetUser";
-import UserContext from "./auth/UserContext";
-import ShoppingApi from "./api";
-import Loading from "./Loading";
+import useLogin from "./hooks/useLogin";
+import useSignUp from "./hooks/useSignUp";
 import "./App.css";
 
 function App() {
-  useEffect(() => {
-    fetch("/api/ping")
-      .then((resp) => resp.text())
-      .then((text) => {
-        console.log("Server status:", text);
-      });
-  }, []);
-
   const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [token, setToken] = useLocalStorageState("userToken");
   const [cart, setCart] = useLocalStorageState("userShopcart");
   const getUser = useGetUser();
+  const loginAPI = useLogin();
+  const signUpAPI = useSignUp();
 
   // get current user when first load and whenever token changed
   useEffect(() => {
@@ -36,9 +33,12 @@ function App() {
       if (token) {
         try {
           let { username } = decodeToken(token);
-          ShoppingApi.token = token;
           let res = await getUser(username);
           setCurrentUser(res.user);
+          Toast(
+            `Welcome! ${res.user.firstName} ${res.user.lastName}!  `,
+            "success"
+          );
         } catch (e) {
           setCurrentUser(null);
         }
@@ -53,8 +53,9 @@ function App() {
   // handle login
   const login = async (data) => {
     try {
-      let token = await ShoppingApi.login(data);
+      let token = await loginAPI(data);
       setToken(token);
+      Toast(`Welcome!!  `, "success");
       return { success: true };
     } catch (e) {
       return { success: false, e };
@@ -64,7 +65,7 @@ function App() {
   // handle sign up
   const signup = async (data) => {
     try {
-      let token = await ShoppingApi.signup(data);
+      let token = await signUpAPI(data);
       setToken(token);
       return { success: true };
     } catch (e) {
@@ -74,13 +75,9 @@ function App() {
 
   // handle log out
   const logout = () => {
+    Toast("Successfully Sign Out!", "success");
     setToken(null);
     setCurrentUser(null);
-  };
-
-  // make api calls to  purchase
-  const purchase = async (id, amt) => {
-    await ShoppingApi.purchase(id, amt);
   };
 
   if (isLoading) return <Loading />;
@@ -88,7 +85,7 @@ function App() {
   return (
     <BrowserRouter>
       <UserContext.Provider
-        value={{ currentUser, setCurrentUser, purchase, cart, setCart }}
+        value={{ currentUser, setCurrentUser, cart, setCart, setToken }}
       >
         <Navbar logout={logout} />
         <div className="App">

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Button, OverlayTrigger, Popover } from "react-bootstrap";
+import Toast from "../common/Toast";
 import "./itemButton.css";
 
 const ItemButton = ({ item, price, handleCart }) => {
@@ -12,7 +13,7 @@ const ItemButton = ({ item, price, handleCart }) => {
         <div className="itemButton">
           <Button
             variant="outline-primary"
-            size="sm"
+            className="btnBox"
             onClick={() => {
               if (amount <= 1) setAmount(1);
               else setAmount(amount - 1);
@@ -20,20 +21,22 @@ const ItemButton = ({ item, price, handleCart }) => {
           >
             -
           </Button>
-          <span>{amount}</span>
+          <b>{amount}</b>
           <Button
             variant="outline-primary"
-            size="sm"
+            className="btnBox"
             onClick={() => setAmount(amount + 1)}
           >
             +
           </Button>
         </div>
         <hr></hr>
-        <div>price:{(price * amount).toFixed(2)}</div>
+        <b>price: {(price * amount).toFixed(2)}</b>
         <Button
+          size="sm"
           onClick={(e) => {
             e.preventDefault();
+            Toast(`Add ${amount} ${item.title}!`);
             handleCart(item, amount);
           }}
         >

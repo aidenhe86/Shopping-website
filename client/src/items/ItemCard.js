@@ -4,7 +4,11 @@ import ItemButton from "./ItemButton";
 
 const itemCard = ({ i, cart, setCart }) => {
   const handleCart = (i, amount) => {
-    cart[i.id] = { ...i, amount };
+    if (cart[i.id]) {
+      cart[i.id]["amount"] += amount;
+    } else {
+      cart[i.id] = { ...i, amount };
+    }
     setCart({ ...cart });
   };
   return (
