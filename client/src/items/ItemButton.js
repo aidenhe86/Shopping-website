@@ -13,20 +13,20 @@ const ItemButton = ({ item, price, handleCart }) => {
           <Button
             variant="outline-primary"
             size="sm"
-            onClick={() => setAmount(amount + 1)}
-          >
-            +
-          </Button>
-          <span>{amount}</span>
-          <Button
-            variant="outline-primary"
-            size="sm"
             onClick={() => {
               if (amount <= 1) setAmount(1);
               else setAmount(amount - 1);
             }}
           >
             -
+          </Button>
+          <span>{amount}</span>
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={() => setAmount(amount + 1)}
+          >
+            +
           </Button>
         </div>
         <hr></hr>

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { decodeToken } from "react-jwt";
 import { BrowserRouter } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Navbar from "./Navbar";
 import ShoppingRoutes from "./ShoppingRoutes";
 import useLocalStorageState from "./hooks/useLocalStorageState";
@@ -44,6 +47,7 @@ function App() {
     };
     getCurrentUser();
     if (cart === null) setCart({});
+    // eslint-disable-next-line
   }, [token]);
 
   // handle login
@@ -89,6 +93,7 @@ function App() {
         <Navbar logout={logout} />
         <div className="App">
           <ShoppingRoutes login={login} signup={signup} />
+          <ToastContainer />
         </div>
       </UserContext.Provider>
     </BrowserRouter>

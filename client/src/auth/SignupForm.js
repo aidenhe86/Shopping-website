@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Col, Row } from "react-bootstrap";
-import Alert from "../common/Alert";
+import Toast from "../common/Toast";
 // signup form
 
 const SignupForm = ({ signup }) => {
@@ -11,6 +11,7 @@ const SignupForm = ({ signup }) => {
     firstName: "",
     lastName: "",
     email: "",
+    address: "",
   });
   const [formErrors, setFormErrors] = useState([]);
   const navigate = useNavigate();
@@ -31,12 +32,15 @@ const SignupForm = ({ signup }) => {
       setFormErrors(result.e);
     }
   };
+  const handleToast = (formErrors) => {
+    formErrors.map((e) => Toast(e, "error"));
+    setFormErrors([]);
+  };
+
   return (
     <Form onSubmit={handleSubmit}>
       <div className="container col-md-6 offset-md-3 col-lg-4 offset-lg-4">
-        {formErrors.length
-          ? formErrors.map((e) => <Alert message={e} />)
-          : null}
+        {formErrors.length ? handleToast(formErrors) : null}
         <h2 className="text-center">Sign Up</h2>
         <Form.Group
           as={Row}
@@ -118,7 +122,6 @@ const SignupForm = ({ signup }) => {
         <Form.Group as={Row} className="mb-3" controlId="formHorizontalAddress">
           <Col>
             <Form.Control
-              type="text"
               onChange={handleChange}
               name="address"
               value={formData.address}

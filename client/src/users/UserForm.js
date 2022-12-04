@@ -1,9 +1,10 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Col, Form, Row, Alert } from "react-bootstrap";
+import { Button, Col, Form, Row } from "react-bootstrap";
 import UserContext from "../auth/UserContext";
 import ShoppingApi from "../api";
 import Loading from "../Loading";
+import Toast from "../common/Toast";
 
 const UserForm = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -45,18 +46,17 @@ const UserForm = () => {
       return;
     }
     setCurrentUser(updatedUser);
+    Toast("Successfully Update Profile!", "success");
     navigate("/");
+  };
+  const handleToast = (formErrors) => {
+    formErrors.map((e) => Toast(e, "error"));
+    setFormErrors([]);
   };
   return (
     <Form onSubmit={handleSubmit}>
       <div className="container">
-        {formErrors.length
-          ? formErrors.map((e) => (
-              <Alert key="danger" variant="danger">
-                {e}
-              </Alert>
-            ))
-          : null}
+        {formErrors.length ? handleToast(formErrors) : null}
         <Form.Group className="mb-3" controlId="formGridUsername">
           <Form.Label>Username</Form.Label>
           <Form.Control placeholder={currentUser.username} disabled />
@@ -113,7 +113,6 @@ const UserForm = () => {
             name="password"
             value={formData.password}
             placeholder="Password"
-            autoComplete="on"
             required
           />
         </Form.Group>
