@@ -14,7 +14,15 @@ const itemCard = ({ i, cart, setCart }) => {
   return (
     <Col key={i.title}>
       <Card style={{ width: "14rem", borderRadius: "5px" }}>
-        <Card.Img variant="top" src={i.imageUrl} />
+        <Card.Img
+          variant="top"
+          src={i.imageUrl}
+          style={{
+            height: "10rem",
+            objectFit: "cover",
+            borderTopRadius: "5px",
+          }}
+        />
         <Card.Body>
           <Card.Title>{i.title}</Card.Title>
           <Col>Available: {i.quantity}</Col>

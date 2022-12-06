@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Container } from "react-bootstrap";
 import CategoryDetail from "./CategoryDetail";
 import useGetCategories from "../hooks/useGetCategories";
@@ -6,15 +6,23 @@ import useGetCategories from "../hooks/useGetCategories";
 // Show a list of categories
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
+  const isMounted = useRef(false);
   const getCategories = useGetCategories();
   // first load show all categories
   useEffect(() => {
-    const list = async () => {
-      let categories = await getCategories();
-      setCategories(categories);
-    };
+    isMounted.current = true;
     list();
-  }, [getCategories]);
+    return () => {
+      isMounted.current = false;
+    };
+    // eslint-disable-next-line
+  }, []);
+  const list = async () => {
+    let categories = await getCategories();
+    if (isMounted.current) {
+      setCategories(categories);
+    }
+  };
 
   return (
     <Container>

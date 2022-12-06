@@ -7,6 +7,7 @@ import UserForm from "./users/UserForm";
 import Success from "./items/Success";
 import Cancel from "./items/Cancel";
 import ShopcartList from "./shopcarts/ShopcartList";
+import CategoryList from "./categories/CategoryList";
 import NotFound from "./NotFound";
 import ProtectRoutes from "./ProtectRoutes";
 
@@ -17,9 +18,10 @@ function ShoppingRoutes({ login, signup }) {
       <Route path="/" element={<Homepage />} />
       <Route path="/login" element={<LoginForm login={login} />} />
       <Route path="/signup" element={<SignupForm signup={signup} />} />
-      <Route path="/items/success" element={<Success />} />
-      <Route path="/items/cancel" element={<Cancel />} />
       <Route element={<ProtectRoutes />}>
+        <Route path="/shop" element={<CategoryList />} />
+        <Route path="/items/success" element={<Success />} />
+        <Route path="/items/cancel" element={<Cancel />} />
         <Route path="/profile" element={<UserForm />} />
         <Route path="/shopcart" element={<ShopcartList />} />
       </Route>

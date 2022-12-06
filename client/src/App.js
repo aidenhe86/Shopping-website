@@ -82,6 +82,8 @@ function App() {
 
   if (isLoading) return <Loading />;
 
+  // hard code background color
+  document.body.style = "background: aliceblue;";
   return (
     <BrowserRouter>
       <UserContext.Provider

@@ -17,7 +17,7 @@ const ShopcartList = () => {
   }
 
   return (
-    <Container className="d-grid gap-5">
+    <Container className="d-grid gap-5 shopcart">
       {Object.keys(cart).map((key) => (
         <ShopcartCard
           item={cart[key]}

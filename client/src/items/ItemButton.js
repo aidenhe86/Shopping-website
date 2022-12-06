@@ -31,7 +31,7 @@ const ItemButton = ({ item, price, handleCart }) => {
           </Button>
         </div>
         <hr></hr>
-        <b>price: {(price * amount).toFixed(2)}</b>
+        <b>Price: ${(price * amount).toFixed(2)}</b>
         <Button
           size="sm"
           onClick={(e) => {

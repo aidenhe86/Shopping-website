@@ -6,7 +6,7 @@ const Success = () => {
 
   setTimeout(function () {
     setCart({});
-    window.location.replace("/");
+    window.location.replace("/shop");
   }, 3000);
 
   return (

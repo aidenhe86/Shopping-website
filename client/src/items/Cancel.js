@@ -2,7 +2,7 @@ import React from "react";
 
 function Cancel() {
   setTimeout(function () {
-    window.location.replace("/");
+    window.location.replace("/shop");
   }, 3000);
   return (
     <div className="Common">

@@ -23,7 +23,7 @@ const LoginForm = ({ login }) => {
     let result = await login(formData);
     // check if successful login, if not show error message
     if (result.success === true) {
-      navigate("/");
+      navigate("/shop");
     } else {
       setFormErrors(result.e);
     }

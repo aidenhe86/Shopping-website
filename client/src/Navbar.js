@@ -11,6 +11,9 @@ function NavBar({ logout }) {
         <Nav.Link as={Link} to="/">
           Home
         </Nav.Link>
+        <Nav.Link as={Link} to="/shop">
+          Shop
+        </Nav.Link>
         <Nav.Link as={Link} to="/profile">
           Profile
         </Nav.Link>

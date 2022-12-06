@@ -1,5 +1,10 @@
+.shopcart{
+  margin-top: 40px;
+}
+
+
 .Shopcart-Button {
-    margin: 0;
+  margin: 0;
   position: absolute;
   top: 50%;
   -ms-transform: translateY(-50%);
