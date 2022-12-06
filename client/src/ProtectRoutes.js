@@ -8,17 +8,29 @@ const ProtectRoutes = () => {
   // render to wait to read currentUser data
   const [render, setRender] = useState(false);
 
-  const { currentUser } = useContext(UserContext);
+  const { currentUser, status, setStatus } = useContext(UserContext);
   const navigate = useNavigate();
   useEffect(() => {
     if (!render) setRender(true);
     else {
       if (!currentUser) {
-        Toast("Please Login!", "error");
+        Toast("Access unauthorized.", "error");
         navigate("/");
+      } else if (status === "login") {
+        Toast(
+          `Welcome back ${currentUser.firstName} ${currentUser.lastName}!`,
+          "success"
+        );
+        setStatus(null);
+      } else if (status === "signup") {
+        Toast(
+          `Welcome New User ${currentUser.firstName} ${currentUser.lastName}!`,
+          "success"
+        );
+        setStatus(null);
       }
     }
-  }, [render, currentUser, navigate]);
+  }, [render, currentUser, navigate, status, setStatus]);
   return <Outlet />;
 };
 

@@ -5,6 +5,7 @@ import UserContext from "./auth/UserContext";
 
 function NavBar({ logout }) {
   const { currentUser } = useContext(UserContext);
+
   const login = () => {
     return (
       <Nav className="me-auto">

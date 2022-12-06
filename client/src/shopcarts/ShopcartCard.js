@@ -10,7 +10,7 @@ const ShopcartCard = ({ item, cart, setCart }) => {
         <Col xs={4}>
           <Card.Img
             variant="left"
-            style={{ width: "14rem", borderRadius: "5px" }}
+            style={{ width: "14rem", borderRadius: "5px 0 0 5px" }}
             src={item.imageUrl}
           />
         </Col>

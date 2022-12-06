@@ -43,7 +43,6 @@ const UserForm = () => {
       setFormErrors(e);
       return;
     }
-    console.log(updatedUser);
     setCurrentUser(updatedUser);
     Toast("Successfully Update Profile!", "success");
     navigate("/shop");

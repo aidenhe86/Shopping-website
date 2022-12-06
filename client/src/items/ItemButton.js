@@ -9,7 +9,7 @@ const ItemButton = ({ item, price, handleCart }) => {
   const popover = (
     <Popover id="popover-basic">
       <Popover.Header as="h3">Order</Popover.Header>
-      <Popover.Body className="buttonBody">
+      <Popover.Body>
         <div className="itemButton">
           <Button
             variant="outline-primary"
@@ -36,6 +36,7 @@ const ItemButton = ({ item, price, handleCart }) => {
           size="sm"
           onClick={(e) => {
             e.preventDefault();
+            document.body.click();
             Toast(`Add ${amount} ${item.title}!`);
             handleCart(item, amount);
           }}
@@ -48,8 +49,13 @@ const ItemButton = ({ item, price, handleCart }) => {
 
   return (
     <>
-      <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
-        <Button variant="success">Shop Now</Button>
+      <OverlayTrigger
+        trigger="click"
+        rootClose
+        placement="bottom"
+        overlay={popover}
+      >
+        <Button variant="custom">Add to cart</Button>
       </OverlayTrigger>
     </>
   );

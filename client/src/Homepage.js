@@ -9,6 +9,11 @@ function Home() {
         <div className="homeText">
           <h1>Hello there! This is a DEMO of Shopping website!</h1>
           <div>
+            Users can view items in <Link to="/shop">Shop</Link> and add items
+            into <Link to="/shopcart">Shop Cart</Link> to purchase by enter the
+            stripe test card number listed below.
+          </div>
+          <div>
             To explore this website, please use the account below to{" "}
             <Link to="/login">Login</Link> or create a new account{" "}
             <Link to="/signup">Here</Link>!

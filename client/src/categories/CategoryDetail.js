@@ -32,7 +32,7 @@ const CategoryDetail = ({ cat }) => {
 
   return (
     <div className={cat}>
-      <h3>{titleCase(cat)}</h3>
+      <h3 style={{ textAlign: "center" }}>{titleCase(cat)}</h3>
       <ItemList items={items} />
     </div>
   );

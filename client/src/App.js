@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { decodeToken } from "react-jwt";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 import Navbar from "./Navbar";
 import ShoppingRoutes from "./ShoppingRoutes";
@@ -14,10 +13,12 @@ import useLocalStorageState from "./hooks/useLocalStorageState";
 import useGetUser from "./hooks/useGetUser";
 import useLogin from "./hooks/useLogin";
 import useSignUp from "./hooks/useSignUp";
+
 import "./App.css";
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [token, setToken] = useLocalStorageState("userToken");
   const [cart, setCart] = useLocalStorageState("userShopcart");
@@ -35,10 +36,6 @@ function App() {
           let { username } = decodeToken(token);
           let res = await getUser(username);
           setCurrentUser(res.user);
-          Toast(
-            `Welcome! ${res.user.firstName} ${res.user.lastName}!  `,
-            "success"
-          );
         } catch (e) {
           setCurrentUser(null);
         }
@@ -55,7 +52,7 @@ function App() {
     try {
       let token = await loginAPI(data);
       setToken(token);
-      Toast(`Welcome!!  `, "success");
+      setStatus("login");
       return { success: true };
     } catch (e) {
       return { success: false, e };
@@ -67,6 +64,7 @@ function App() {
     try {
       let token = await signUpAPI(data);
       setToken(token);
+      setStatus("signup");
       return { success: true };
     } catch (e) {
       return { success: false, e };
@@ -81,13 +79,19 @@ function App() {
   };
 
   if (isLoading) return <Loading />;
-
   // hard code background color
   document.body.style = "background: aliceblue;";
   return (
     <BrowserRouter>
       <UserContext.Provider
-        value={{ currentUser, setCurrentUser, cart, setCart, setToken }}
+        value={{
+          currentUser,
+          setCurrentUser,
+          cart,
+          setCart,
+          status,
+          setStatus,
+        }}
       >
         <Navbar logout={logout} />
         <div className="App">
