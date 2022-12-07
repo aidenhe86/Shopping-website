@@ -67,6 +67,7 @@ const LoginForm = ({ login }) => {
               name="password"
               value={formData.password}
               placeholder="Password"
+              autoComplete="false"
               required
             />
           </Col>

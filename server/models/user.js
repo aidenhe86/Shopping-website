@@ -30,6 +30,9 @@ class User {
               last_name AS "lastName",
               email,
               address,
+              city,
+              state,
+              zip,
               is_admin AS "isAdmin"
       FROM users
       WHERE username = $1`,
@@ -64,6 +67,9 @@ class User {
     lastName,
     email,
     address,
+    city,
+    state,
+    zip,
     isAdmin,
   }) {
     const duplicateCheck = await db.query(
@@ -87,10 +93,24 @@ class User {
             last_name,
             email,
             address,
+            city,
+            state,
+            zip,
             is_admin)
-           VALUES ($1, $2, $3, $4, $5, $6,$7)
-           RETURNING username, first_name AS "firstName", last_name AS "lastName", email, address, is_admin AS "isAdmin"`,
-      [username, hashedPassword, firstName, lastName, email, address, isAdmin]
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+           RETURNING username, first_name AS "firstName", last_name AS "lastName", email, address, city, state, zip, is_admin AS "isAdmin"`,
+      [
+        username,
+        hashedPassword,
+        firstName,
+        lastName,
+        email,
+        address,
+        city,
+        state,
+        zip,
+        isAdmin,
+      ]
     );
 
     const user = result.rows[0];
@@ -110,6 +130,9 @@ class User {
                   last_name AS "lastName",
                   email,
                   address,
+                  city,
+                  state,
+                  zip,
                   is_admin AS "isAdmin"
            FROM users
            ORDER BY username`
@@ -128,11 +151,14 @@ class User {
   static async get(username) {
     const userRes = await db.query(
       `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  address,
-                  is_admin AS "isAdmin"
+              first_name AS "firstName",
+              last_name AS "lastName",
+              email,
+              address,
+              city,
+              state,
+              zip,
+              is_admin AS "isAdmin"
            FROM users
            WHERE username = $1`,
       [username]
@@ -151,7 +177,7 @@ class User {
    * all the fields; this only changes provided ones.
    *
    * Data can include:
-   *   { firstName, lastName, password, email, isAdmin }
+   *   { firstName, lastName, password, email, address, isAdmin }
    *
    * Returns { username, firstName, lastName, email, isAdmin }
    *
@@ -178,6 +204,9 @@ class User {
                                 last_name AS "lastName",
                                 email,
                                 address,
+                                city,
+                                state,
+                                zip,
                                 is_admin AS "isAdmin"`;
     const result = await db.query(querySql, [...values, username]);
     const user = result.rows[0];

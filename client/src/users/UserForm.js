@@ -2,15 +2,18 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Col, Form, Row } from "react-bootstrap";
 import UserContext from "../auth/UserContext";
+import useLogin from "../hooks/useLogin";
 import useUpdateUser from "../hooks/useUpdateUser";
 import Loading from "../Loading";
 import Toast from "../common/Toast";
+import state from "../common/state";
 
 const UserForm = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { currentUser, setCurrentUser } = useContext(UserContext);
   const [formData, setFormData] = useState({});
   const [formErrors, setFormErrors] = useState([]);
+  const loginAPI = useLogin();
   const navigate = useNavigate();
   const updateUser = useUpdateUser();
   useEffect(() => {
@@ -20,7 +23,11 @@ const UserForm = () => {
         lastName: currentUser.lastName,
         email: currentUser.email,
         address: currentUser.address,
+        city: currentUser.city,
+        state: currentUser.state,
+        zip: currentUser.zip,
         password: "",
+        newPassword: "",
       });
       setIsLoading(false);
     }
@@ -38,6 +45,15 @@ const UserForm = () => {
     e.preventDefault();
     let updatedUser;
     try {
+      await loginAPI({
+        username: currentUser.username,
+        password: formData.password,
+      });
+      if (formData.newPassword) {
+        formData.password = formData.newPassword;
+      }
+      delete formData.newPassword;
+      formData.zip = +formData.zip || formData.zip;
       updatedUser = await updateUser(currentUser.username, formData);
     } catch (e) {
       setFormErrors(e);
@@ -103,14 +119,64 @@ const UserForm = () => {
             required
           />
         </Form.Group>
-        <Form.Group className="mb-3" controlId="formGridPassword">
+
+        <Row className="mb-3">
+          <Form.Group as={Col} controlId="formGridCity">
+            <Form.Label>City</Form.Label>
+            <Form.Control
+              onChange={handleChange}
+              name="city"
+              value={formData.city}
+              placeholder="City"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group as={Col} controlId="formGridState">
+            <Form.Label>State</Form.Label>
+            <Form.Select
+              onChange={handleChange}
+              name="state"
+              placeholder="state"
+              defaultValue={formData.state}
+            >
+              <option key="">Choose...</option>
+              {state.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+
+          <Form.Group as={Col} controlId="formGridZip">
+            <Form.Label>Zip</Form.Label>
+            <Form.Control
+              onChange={handleChange}
+              name="zip"
+              value={formData.zip}
+              placeholder="zip"
+              required
+            />
+          </Form.Group>
+        </Row>
+
+        <Form.Group className="mb-3" controlId="formGridNewPassword">
           <Form.Label>Set New Password</Form.Label>
           <Form.Control
             type="password"
             onChange={handleChange}
+            name="newPassword"
+            placeholder="New Password"
+            autoComplete="false"
+          />
+        </Form.Group>
+        <Form.Group className="mb-3" controlId="formGridPassword">
+          <Form.Label>Confirm Password</Form.Label>
+          <Form.Control
+            type="password"
+            onChange={handleChange}
             name="password"
-            value={formData.password}
-            placeholder="Password"
+            placeholder="Current Password"
+            autoComplete="false"
             required
           />
         </Form.Group>

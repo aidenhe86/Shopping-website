@@ -38,3 +38,11 @@
 	"price":"17.99",
 	"description":"Candy Balls Dessert."
 }
+{
+  "categories":["soda"],
+	"title":"Lemonade",
+	"imageUrl":"https://cdn.pixabay.com/photo/2014/08/08/21/03/beer-413704_960_720.jpg",
+	"quantity":100,
+	"price":"3.29",
+	"description":"1 Bottle of Lemonade."
+}

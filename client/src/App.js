@@ -95,7 +95,11 @@ function App() {
       >
         <Navbar logout={logout} />
         <div className="App">
-          <ShoppingRoutes login={login} signup={signup} />
+          <ShoppingRoutes
+            login={login}
+            signup={signup}
+            currentUser={currentUser}
+          />
           <ToastContainer />
         </div>
       </UserContext.Provider>

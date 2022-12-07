@@ -30,9 +30,20 @@
       "format": "email"
     },
     "address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
       "type": "string",
-      "minLength": 6,
-      "maxLength": 60
+      "minLength": 2,
+      "maxLength": 2
+    },
+    "zip": {
+      "type": "integer",
+      "minimun": 10000,
+      "maximum": 99999
     },
     "isAdmin": {
       "type": "boolean"
@@ -45,6 +56,9 @@
     "lastName",
     "password",
     "address",
+    "city",
+    "state",
+    "zip",
     "email"
   ]
 }

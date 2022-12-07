@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Homepage from "./Homepage";
 import LoginForm from "./auth/LoginForm";
 import SignupForm from "./auth/SignupForm";
@@ -12,12 +12,22 @@ import NotFound from "./NotFound";
 import ProtectRoutes from "./ProtectRoutes";
 
 // routes for the website
-function ShoppingRoutes({ login, signup }) {
+function ShoppingRoutes({ login, signup, currentUser }) {
   return (
     <Routes>
       <Route path="/" element={<Homepage />} />
-      <Route path="/login" element={<LoginForm login={login} />} />
-      <Route path="/signup" element={<SignupForm signup={signup} />} />
+      <Route
+        path="/login"
+        element={
+          currentUser ? <Navigate to="/shop" /> : <LoginForm login={login} />
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          currentUser ? <Navigate to="/shop" /> : <SignupForm signup={signup} />
+        }
+      />
       <Route element={<ProtectRoutes />}>
         <Route path="/shop" element={<CategoryList />} />
         <Route path="/items/success" element={<Success />} />

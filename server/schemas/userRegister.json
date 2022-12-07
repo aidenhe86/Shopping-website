@@ -28,6 +28,19 @@
       "minLength": 6,
       "maxLength": 60
     },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 2
+    },
+    "zip": {
+      "type": "integer",
+      "minimun": 10000,
+      "maximum": 99999
+    },
     "email": {
       "type": "string",
       "minLength": 6,
@@ -42,6 +55,9 @@
     "lastName",
     "password",
     "address",
+    "city",
+    "state",
+    "zip",
     "email"
   ]
 }

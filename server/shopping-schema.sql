@@ -6,6 +6,9 @@ CREATE TABLE users (
   email TEXT NOT NULL
     CHECK (position('@' IN email) > 1),
   address TEXT NOT NULL,
+  city TEXT NOT NULL,
+  state TEXT NOT NULL,
+  zip varchar(5) NOT NULL,
   is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );
 

@@ -19,8 +19,8 @@ const ItemList = ({ items }) => {
     <div className="items">
       <Carousel fade>
         {items.map((i) => (
-          <Carousel.Item>
-            <img className="d-block w-100" src={i.imageUrl} alt="First slide" />
+          <Carousel.Item key={i.title}>
+            <img className="d-block w-100" src={i.imageUrl} alt={i.title} />
             <Carousel.Caption>
               <h3>{i.title}</h3>
               <div>Available: {i.quantity}</div>
