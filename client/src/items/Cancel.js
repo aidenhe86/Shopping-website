@@ -7,6 +7,7 @@ function Cancel() {
   return (
     <div className="Common">
       <h1>Order has been canceled!</h1>
+      <div>Back to home in 3 second.</div>
     </div>
   );
 }

@@ -1,16 +1,18 @@
 .App{
+  padding-top: 3rem;
   padding-bottom:7rem;
 }
 
 .Common {
-    position: fixed; /* or absolute */
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    text-align: center;
 }
 
 .banner{
-  width:80%;
+  width: 70%;
   height:70%;
   top:25%;
   left:130px;
@@ -20,12 +22,12 @@
 .homeText h1{
   font-size:40px;
   position:relative;
-  margin-left:40px;
+  margin:0 40px;
 }
 .homeText h5{
   font-size:20px;
   position:relative;
-  margin-left:40px;
+  margin:0 40px;
 }
 
 .homeText div{

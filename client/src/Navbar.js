@@ -8,7 +8,7 @@ function NavBar({ logout }) {
 
   const login = () => {
     return (
-      <Nav className="me-auto">
+      <Nav>
         <Nav.Link as={Link} to="/">
           Home
         </Nav.Link>
@@ -29,7 +29,7 @@ function NavBar({ logout }) {
   };
   const signout = () => {
     return (
-      <Nav className="me-auto">
+      <Nav>
         <Nav.Link as={Link} to="/">
           Home
         </Nav.Link>
@@ -45,13 +45,16 @@ function NavBar({ logout }) {
 
   return (
     <div>
-      <Navbar expand="md" bg="dark" variant="dark">
-        <Container>
+      <Navbar expand="lg" bg="dark" variant="dark">
+        <Container fluid style={{ margin: "0 60px" }}>
           <Navbar.Brand as={Link} to="/">
             Shopping
           </Navbar.Brand>
+          <Navbar.Toggle aria-controls="navbar-nav" />
+          <Navbar.Collapse id="navbar-nav" className="justify-content-end">
+            {currentUser ? login() : signout()}
+          </Navbar.Collapse>
         </Container>
-        {currentUser ? login() : signout()}
       </Navbar>
     </div>
   );

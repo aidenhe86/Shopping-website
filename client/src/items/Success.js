@@ -11,7 +11,8 @@ const Success = () => {
 
   return (
     <div className="Common">
-      <h1>Purchase Successfully! Thank you for your purchase!</h1>
+      <h1>Purchase Successfully!Thank you for your purchase!</h1>
+      <div>Back to home in 3 second.</div>
     </div>
   );
 };
