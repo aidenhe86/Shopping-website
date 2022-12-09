@@ -1,12 +1,29 @@
-.shopcart{
-  margin-top: 40px;
+.shopcart img{
+  width: 13rem;
+  height: 12rem;
+  border-radius: 5px;
+  object-fit: cover;
 }
 
+.shopcart .priceItem{
+  text-align: right;
+  margin-top: 20px;
+  position: absolute;
+}
+.shopcart .priceTitle{
+  text-align: right;
+  margin-right:25px;
+}
 
-.Shopcart-Button {
-  margin: 0;
+.cartBtn{
+  width:5rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ShopcartRemove {
+  margin: 0 auto;
   position: absolute;
   top: 50%;
-  -ms-transform: translateY(-50%);
   transform: translateY(-50%);
 }

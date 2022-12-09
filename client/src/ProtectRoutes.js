@@ -22,12 +22,14 @@ const ProtectRoutes = () => {
           "success"
         );
         setStatus(null);
+        navigate("/");
       } else if (status === "signup") {
         Toast(
           `Welcome New User ${currentUser.firstName} ${currentUser.lastName}!`,
           "success"
         );
         setStatus(null);
+        navigate("/");
       }
     }
   }, [render, currentUser, navigate, status, setStatus]);

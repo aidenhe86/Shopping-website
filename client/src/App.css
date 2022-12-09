@@ -1,6 +1,6 @@
 .App{
   padding-top: 3rem;
-  padding-bottom:7rem;
+  padding-bottom:11rem;
 }
 
 .Common {
@@ -14,8 +14,7 @@
 .banner{
   width: 70%;
   height:70%;
-  top:25%;
-  left:130px;
+  margin-top: 7%;
   position:absolute;
 }
 

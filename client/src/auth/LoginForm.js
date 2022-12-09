@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Form, Button, Col, Row } from "react-bootstrap";
 import Toast from "../common/Toast";
 // login form
 
 const LoginForm = ({ login }) => {
+  const location = useLocation();
   const [formData, setFormData] = useState({
-    username: "",
-    password: "",
+    username: location.state ? location.state.user : "",
+    password: location.state ? location.state.pwd : "",
   });
   const [formErrors, setFormErrors] = useState([]);
   const navigate = useNavigate();

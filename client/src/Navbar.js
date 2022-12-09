@@ -1,28 +1,40 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { Container, Nav, Navbar } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faUser,
+  faShoppingCart,
+  faShop,
+  faHouse,
+  faRightFromBracket,
+  faRightToBracket,
+  faRegistered,
+} from "@fortawesome/free-solid-svg-icons";
 import UserContext from "./auth/UserContext";
 
 function NavBar({ logout }) {
-  const { currentUser } = useContext(UserContext);
+  const { currentUser, cart } = useContext(UserContext);
 
   const login = () => {
     return (
       <Nav>
         <Nav.Link as={Link} to="/">
-          Home
+          <FontAwesomeIcon icon={faHouse} />
         </Nav.Link>
         <Nav.Link as={Link} to="/shop">
-          Shop
-        </Nav.Link>
-        <Nav.Link as={Link} to="/profile">
-          Profile
+          <FontAwesomeIcon icon={faShop} />
         </Nav.Link>
         <Nav.Link as={Link} to="/shopcart">
-          Shop Cart
+          <span>{Object.keys(cart).length}</span>
+          <FontAwesomeIcon icon={faShoppingCart} />
+        </Nav.Link>
+
+        <Nav.Link as={Link} to="/profile">
+          <FontAwesomeIcon icon={faUser} />
         </Nav.Link>
         <Nav.Link as={Link} to="/" onClick={logout}>
-          Sign Out
+          <FontAwesomeIcon icon={faRightFromBracket} />
         </Nav.Link>
       </Nav>
     );
@@ -31,13 +43,13 @@ function NavBar({ logout }) {
     return (
       <Nav>
         <Nav.Link as={Link} to="/">
-          Home
+          <FontAwesomeIcon icon={faHouse} />
         </Nav.Link>
         <Nav.Link as={Link} to="/login">
-          Login
+          <FontAwesomeIcon icon={faRightToBracket} />
         </Nav.Link>
         <Nav.Link as={Link} to="/signup">
-          Sign Up
+          <FontAwesomeIcon icon={faRegistered} />
         </Nav.Link>
       </Nav>
     );

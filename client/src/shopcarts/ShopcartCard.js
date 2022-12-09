@@ -4,38 +4,59 @@ import Toast from "../common/Toast";
 import "./ShopcartCard.css";
 
 const ShopcartCard = ({ item, cart, setCart }) => {
+  const deleteItem = () => {
+    delete cart[item.id];
+    Toast(`${item.title} has been remove from Cart!`);
+    setCart({ ...cart });
+  };
   return (
     <Card>
       <Row>
-        <Col xs={4}>
-          <Card.Img
-            variant="left"
-            style={{ width: "14rem", borderRadius: "5px 0 0 5px" }}
-            src={item.imageUrl}
-          />
+        <Col xs={12} md={5}>
+          <Card.Img variant="left" src={item.imageUrl} />
         </Col>
 
-        <Col xs={5}>
+        <Col xs={7} md={4}>
           <Card.Body>
             <Card.Title>{item.title}</Card.Title>
-            <Col>Purchase Amount:{item.amount}</Col>
-            <Col>Price: ${item.price}</Col>
             <Col>{item.description}</Col>
+            <Col>Quantity:</Col>
+            <Col className="cartBtn">
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={() => {
+                  if (cart[item.id].amount <= 1) deleteItem();
+                  else setCart({ ...cart }, cart[item.id].amount--);
+                }}
+              >
+                -
+              </Button>
+              <span>{item.amount}</span>
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={() => {
+                  setCart({ ...cart }, cart[item.id].amount++);
+                }}
+              >
+                +
+              </Button>
+            </Col>
           </Card.Body>
         </Col>
 
-        <Col md={{ span: 1, offset: 1 }}>
+        <Col xs={1} md={2}>
           <Button
-            className="Shopcart-Button"
+            className="ShopcartRemove"
             variant="secondary"
-            onClick={() => {
-              delete cart[item.id];
-              Toast(`${item.amount} ${item.title} remove from Shop Cart!`);
-              setCart({ ...cart });
-            }}
+            onClick={() => deleteItem()}
           >
             Remove
           </Button>
+        </Col>
+        <Col className="priceItem">
+          <b>${item.price}</b>
         </Col>
       </Row>
     </Card>

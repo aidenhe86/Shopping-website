@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import Homepage from "./Homepage";
+import Homepage2 from "./Homepage2";
 import LoginForm from "./auth/LoginForm";
 import SignupForm from "./auth/SignupForm";
 import UserForm from "./users/UserForm";
@@ -15,17 +16,17 @@ import ProtectRoutes from "./ProtectRoutes";
 function ShoppingRoutes({ login, signup, currentUser }) {
   return (
     <Routes>
-      <Route path="/" element={<Homepage />} />
+      <Route path="/" element={currentUser ? <Homepage2 /> : <Homepage />} />
       <Route
         path="/login"
         element={
-          currentUser ? <Navigate to="/shop" /> : <LoginForm login={login} />
+          currentUser ? <Navigate to="/" /> : <LoginForm login={login} />
         }
       />
       <Route
         path="/signup"
         element={
-          currentUser ? <Navigate to="/shop" /> : <SignupForm signup={signup} />
+          currentUser ? <Navigate to="/" /> : <SignupForm signup={signup} />
         }
       />
       <Route element={<ProtectRoutes />}>

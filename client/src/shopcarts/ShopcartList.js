@@ -7,6 +7,8 @@ import usePurchase from "../hooks/usePurchase";
 const ShopcartList = () => {
   const { cart, setCart } = useContext(UserContext);
   const purchase = usePurchase();
+  let total = 0;
+  let amount = 0;
 
   if (Object.keys(cart).length === 0) {
     return (
@@ -16,8 +18,16 @@ const ShopcartList = () => {
     );
   }
 
+  Object.keys(cart).forEach((key) => {
+    total += cart[key].price * cart[key].amount;
+    amount += cart[key].amount;
+  });
+
   return (
-    <Container className="d-grid gap-5 shopcart">
+    <Container className="d-grid gap-4 shopcart">
+      <h1>Your Item:</h1>
+      <b className="priceTitle">Price</b>
+      <hr></hr>
       {Object.keys(cart).map((key) => (
         <ShopcartCard
           item={cart[key]}
@@ -26,6 +36,11 @@ const ShopcartList = () => {
           cart={cart}
         />
       ))}
+      <hr></hr>
+      <div style={{ textAlign: "right", fontSize: "25px" }}>
+        Subtotal ({amount} {amount === 1 ? "item" : "items"}):$
+        {total.toFixed(2)}
+      </div>
       <Button
         onClick={() => {
           purchase(cart);

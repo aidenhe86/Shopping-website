@@ -32,7 +32,7 @@ const SignupForm = ({ signup }) => {
     let result = await signup(formData);
     // check if successful login, if not show error message
     if (result.success === true) {
-      navigate("/shop");
+      navigate("/");
     } else {
       setFormErrors(result.e);
     }
