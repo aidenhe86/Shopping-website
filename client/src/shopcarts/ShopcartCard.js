@@ -1,7 +1,6 @@
 import React from "react";
 import { Card, Col, Row, Button } from "react-bootstrap";
 import Toast from "../common/Toast";
-import "./ShopcartCard.css";
 
 const ShopcartCard = ({ item, cart, setCart }) => {
   const deleteItem = () => {

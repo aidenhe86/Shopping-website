@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import Navbar from "./Navbar";
+import Sidecart from "./shopcarts/Sidecart";
 import ShoppingRoutes from "./ShoppingRoutes";
 import UserContext from "./auth/UserContext";
 import Loading from "./Loading";
@@ -94,6 +95,7 @@ function App() {
         }}
       >
         <Navbar logout={logout} />
+        <Sidecart cart={cart} setCart={setCart} currentUser={currentUser} />
         <div className="App">
           <ShoppingRoutes
             login={login}

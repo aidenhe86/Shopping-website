@@ -3,6 +3,7 @@ import { Button, Container } from "react-bootstrap";
 import UserContext from "../auth/UserContext";
 import ShopcartCard from "./ShopcartCard";
 import usePurchase from "../hooks/usePurchase";
+import "./Shopcart.css";
 
 const ShopcartList = () => {
   const { cart, setCart } = useContext(UserContext);
@@ -39,7 +40,7 @@ const ShopcartList = () => {
       <hr></hr>
       <div style={{ textAlign: "right", fontSize: "25px" }}>
         Subtotal ({amount} {amount === 1 ? "item" : "items"}):$
-        {total.toFixed(2)}
+        {Math.round(total * 100) / 100}
       </div>
       <Button
         onClick={() => {

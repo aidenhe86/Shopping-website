@@ -21,7 +21,7 @@ const ItemList = ({ items }) => {
         {items.map((i) => (
           <Carousel.Item key={i.title}>
             <img className="d-block w-100" src={i.imageUrl} alt={i.title} />
-            <Carousel.Caption>
+            <Carousel.Caption className="itemsBody">
               <h3>{i.title}</h3>
               <div>Available: {i.quantity}</div>
               <div>Price: ${i.price}</div>

@@ -10,7 +10,7 @@ const ItemButton = ({ item, price, handleCart }) => {
     <Popover id="popover-basic">
       <Popover.Header as="h3">Order</Popover.Header>
       <Popover.Body>
-        <div className="itemButton">
+        <div className="itemsBtn">
           <Button
             variant="outline-primary"
             className="btnBox"
@@ -34,8 +34,7 @@ const ItemButton = ({ item, price, handleCart }) => {
         <b>Price: ${(price * amount).toFixed(2)}</b>
         <Button
           size="sm"
-          onClick={(e) => {
-            e.preventDefault();
+          onClick={() => {
             document.body.click();
             Toast(`Add ${amount} ${item.title}!`);
             handleCart(item, amount);
@@ -55,7 +54,7 @@ const ItemButton = ({ item, price, handleCart }) => {
         placement="bottom"
         overlay={popover}
       >
-        <Button variant="secondary">Add to cart</Button>
+        <Button variant="primary">Add to cart</Button>
       </OverlayTrigger>
     </>
   );
