@@ -74,7 +74,7 @@ function App() {
 
   // handle log out
   const logout = () => {
-    Toast("Successfully Sign Out!", "success");
+    Toast("Successfully Signed Out!", "success");
     setToken(null);
     setCurrentUser(null);
   };

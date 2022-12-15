@@ -27,6 +27,7 @@ const CategoryList = () => {
   return (
     <Container>
       <div className="CategoryList d-grid gap-5">
+        <h1 style={{ textAlign: "center" }}>Available Items</h1>
         {categories.map((c) => (
           <CategoryDetail key={c.category} cat={c.category} />
         ))}

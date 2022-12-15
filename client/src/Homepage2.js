@@ -7,15 +7,15 @@ function Home() {
     <Container>
       <div className="banner">
         <div className="homeText">
-          <h1>Hello there! This is a DEMO of Shopping website!</h1>
+          <h1>Hello there! This is a DEMO of eShops!</h1>
           <div>
-            You can view items in <Link to="/shop">Shop</Link> and add items
-            into <Link to="/shopcart">Cart</Link> and purchase by enter the
+            View items in the <Link to="/shop">shop</Link>, add items into the{" "}
+            <Link to="/shopcart">cart</Link>, then purchase by entering the
             stripe test card number listed below.
           </div>
           <div>
-            Please use below test card info to play around.
-            <Table striped bordered>
+            Use the test card information below to play around.
+            <Table striped bordered className="cardTable">
               <thead>
                 <tr>
                   <th>Stripe test card number</th>

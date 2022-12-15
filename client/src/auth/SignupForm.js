@@ -173,7 +173,7 @@ const SignupForm = ({ signup }) => {
         </Form.Group>
 
         <div className="d-grid gap-2">
-          <Button variant="primary" size="lg" type="submit">
+          <Button size="lg" type="submit">
             Submit
           </Button>
         </div>

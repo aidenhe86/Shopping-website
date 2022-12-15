@@ -51,7 +51,7 @@ class Item {
     const stripeProduct = await stripe.products.create({ name: title });
     const stripePrice = await stripe.prices.create({
       product: stripeProduct.id,
-      unit_amount: Math.round(price * 100),
+      unit_amount: Math.floor(price * 100),
       currency: "usd",
     });
 
@@ -310,7 +310,7 @@ class Item {
     }
     if (itemData.price) {
       const price = await stripe.prices.update(item.priceId, {
-        unit_amount: itemData.price * 100,
+        unit_amount: Math.floor(itemData.price * 100),
       });
       itemData.price_id = price.id;
     }

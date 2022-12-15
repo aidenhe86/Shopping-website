@@ -26,7 +26,7 @@ const ShopcartList = () => {
 
   return (
     <Container className="d-grid gap-4 shopcart">
-      <h1>Your Item:</h1>
+      <h1>Your Items:</h1>
       <b className="priceTitle">Price</b>
       <hr></hr>
       {Object.keys(cart).map((key) => (
@@ -39,16 +39,19 @@ const ShopcartList = () => {
       ))}
       <hr></hr>
       <div style={{ textAlign: "right", fontSize: "25px" }}>
-        Subtotal ({amount} {amount === 1 ? "item" : "items"}):$
+        Subtotal ({amount} {amount === 1 ? "item" : "items"}): $
         {Math.round(total * 100) / 100}
+        <div>
+          <Button
+            variant="success"
+            onClick={() => {
+              purchase(cart);
+            }}
+          >
+            Purchase
+          </Button>
+        </div>
       </div>
-      <Button
-        onClick={() => {
-          purchase(cart);
-        }}
-      >
-        Purchase
-      </Button>
     </Container>
   );
 };

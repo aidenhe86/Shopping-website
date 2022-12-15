@@ -70,6 +70,7 @@ const UserForm = () => {
   return (
     <Form onSubmit={handleSubmit}>
       <div className="container">
+        <h1>{currentUser.username}'s Profile</h1>
         {formErrors.length ? handleToast(formErrors) : null}
         <Form.Group className="mb-3" controlId="formGridUsername">
           <Form.Label>Username</Form.Label>

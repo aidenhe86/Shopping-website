@@ -1,33 +1,21 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Container, Table } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 
 function Home() {
   return (
     <Container>
       <div className="banner">
         <div className="homeText">
-          <h1>Hello there! This is a DEMO of Shopping website!</h1>
+          <h1>Hello there! This is a DEMO of eShops!</h1>
           <div>
-            To explore this website, please use the account below to{" "}
+            To explore this website, please click{" "}
             <Link to="/login" state={{ user: "testuser", pwd: "password" }}>
-              Login
+              here
             </Link>{" "}
-            or create a new account <Link to="/signup">Here</Link>!
-            <Table striped bordered>
-              <thead>
-                <tr>
-                  <th>Username</th>
-                  <th>Password</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>testuser</td>
-                  <td>password</td>
-                </tr>
-              </tbody>
-            </Table>
+            to login test user account or create a new account{" "}
+            <Link to="/signup">here</Link>! Already registered? Click{" "}
+            <Link to="/login">here</Link> to login!
           </div>
         </div>
       </div>

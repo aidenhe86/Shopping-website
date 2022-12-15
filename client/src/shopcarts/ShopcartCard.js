@@ -48,7 +48,7 @@ const ShopcartCard = ({ item, cart, setCart }) => {
         <Col xs={1} md={2}>
           <Button
             className="ShopcartRemove"
-            variant="secondary"
+            variant="danger"
             onClick={() => deleteItem()}
           >
             Remove

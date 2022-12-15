@@ -54,7 +54,7 @@ const ItemButton = ({ item, price, handleCart }) => {
         placement="bottom"
         overlay={popover}
       >
-        <Button variant="primary">Add to cart</Button>
+        <Button>Add to cart</Button>
       </OverlayTrigger>
     </>
   );

@@ -40,7 +40,7 @@
 }
 
 .sidecart .sidecartCard{
-  margin:5px;
+  margin: 5px;
   display: grid;
 }
 
@@ -54,6 +54,10 @@
   height:4rem;
   border-radius: 5px;
   object-fit: cover;
+}
+
+.deleteBtn{
+  margin-top: 5px;
 }
 
 @media only screen and (max-width: 991px) {

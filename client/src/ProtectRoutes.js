@@ -17,17 +17,11 @@ const ProtectRoutes = () => {
         Toast("Access unauthorized.", "error");
         navigate("/");
       } else if (status === "login") {
-        Toast(
-          `Welcome back ${currentUser.firstName} ${currentUser.lastName}!`,
-          "success"
-        );
+        Toast(`Welcome back ${currentUser.username}!`, "success");
         setStatus(null);
         navigate("/");
       } else if (status === "signup") {
-        Toast(
-          `Welcome New User ${currentUser.firstName} ${currentUser.lastName}!`,
-          "success"
-        );
+        Toast(`Welcome New User ${currentUser.username}!`, "success");
         setStatus(null);
         navigate("/");
       }

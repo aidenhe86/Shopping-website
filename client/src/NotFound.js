@@ -8,7 +8,7 @@ function NotFound() {
   return (
     <div className="Common">
       <h1>The page you're looking for doesn't exist.</h1>
-      <div>Back to home in 3 second.</div>
+      <div>Back to home in 3 seconds.</div>
     </div>
   );
 }

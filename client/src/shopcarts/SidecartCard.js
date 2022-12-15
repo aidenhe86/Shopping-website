@@ -34,7 +34,13 @@ function SidecartCard({ item, cart, setCart }) {
           +
         </Button>
       </div>
-      <Button variant="secondary" size="sm" onClick={() => deleteItem()}>
+      <Button
+        className="deleteBtn"
+        variant="danger"
+        size="sm"
+        onClick={() => deleteItem()}
+        // style={{ marginTop: "5px" }}
+      >
         Remove
       </Button>
     </div>

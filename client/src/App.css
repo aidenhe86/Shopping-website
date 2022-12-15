@@ -18,6 +18,10 @@
   position:absolute;
 }
 
+.cardTable th{
+  width:9%;
+}
+
 .homeText h1{
   font-size:40px;
   position:relative;
