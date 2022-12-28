@@ -13,7 +13,7 @@ function Home() {
             <Link to="/login" state={{ user: "testuser", pwd: "password" }}>
               here
             </Link>{" "}
-            to login test user account or create a new account{" "}
+            to login with a test user account or create a new account{" "}
             <Link to="/signup">here</Link>! Already registered? Click{" "}
             <Link to="/login">here</Link> to login!
           </div>
