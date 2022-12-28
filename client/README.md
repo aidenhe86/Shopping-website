@@ -14,5 +14,5 @@ Then you can start the server
 Runs the app in the development mode.\
 Open [http://localhost:5000](http://localhost:5000) to view it in the browser.
 
-Please run the server side code first, or client side will not be able to read the data!
+Please run the server side code first, otherwise this app will not be able to read the data!
 

@@ -23,12 +23,13 @@ Register
 2. Fill out the sign up form and click submit button.
 
 Purchase
-1. Once logged in, user can view products on the main page, and click on the shop now button to purchase item.
-2. In the shop now button, select the amount of products to purchase and click order.
-3. All ordered items will be shown in shopcart page. Users can view the order by clicking the Shop Cart nav bar.
-4. In the Shop Cart page, user can remove the ordered item.
+1. Once logged in, user can view products on the shop page, and click Add to cart button to add items.
+2. In the Add to cart button, select the amount of products to purchase and click order.
+3. All added items will be shown in the shopcart page. Users can see it by clicking the Shop Cart icon in the nav bar.
+4. In the Shop Cart page, user can edit and remove the ordered item.
 5. When user is ready to purchase, click on the Purchase button to redirect to stripe page.
-6. After purchase, user will redirect to a success page, and redirect again back to main page.
+6. On the stripe page, enter stripe test card number to process payments.
+7. After purchase, user will redirect to a success page, and redirect again back to shop page.
 
 #### API LIST
 ***
@@ -43,7 +44,7 @@ Purchase
 
 #### Libraries Used
 ***
-node.js, React.js, Postgresql, Bootstrap, React-Bootstrap, Bcrypt, cors, dotenv, express, jsonschema, jsonwebtoken, axios, ngrok.
+node.js, React.js, Postgresql, Bootstrap, React-Bootstrap, React-toastify, font-awesome, Bcrypt, cors, dotenv, express, jsonschema, jsonwebtoken, axios, ngrok.
 
 #### Developments
 ***
