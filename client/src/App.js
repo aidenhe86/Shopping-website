@@ -27,6 +27,9 @@ function App() {
   const loginAPI = useLogin();
   const signUpAPI = useSignUp();
 
+  // first time user
+  if (cart === null) setCart({});
+
   // get current user when first load and whenever token changed
   useEffect(() => {
     // get current user, if no user return null
@@ -44,7 +47,6 @@ function App() {
       setIsLoading(false);
     };
     getCurrentUser();
-    if (cart === null) setCart({});
     // eslint-disable-next-line
   }, [token]);
 
