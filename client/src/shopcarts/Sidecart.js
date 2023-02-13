@@ -3,7 +3,7 @@ import SidecartCard from "./SidecartCard";
 
 function Sidecart({ cart, setCart, currentUser }) {
   // if not login or empty cart, not show side cart
-  if (Object.keys(cart).length === 0 || !currentUser) {
+  if (!Object.keys(carts) || Object.keys(cart).length === 0 || !currentUser) {
     return null;
   }
 
